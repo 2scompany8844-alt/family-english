@@ -1,0 +1,1777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>가족 영어</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css">
+<style>
+/* ============================================================
+   가족 영어앱 v2 — 기준 레퍼: 스픽(Speak) 화면 짜임
+   글꼴 프리텐다드 하나 · 흰 바탕+회색 면 · 강조색 네온 그린 하나
+   (마이크 · 지금 말할 단어 · 고친 단어 · 오늘 할 카드에만)
+   ============================================================ */
+:root{
+  --bg:#FFFFFF; --surface:#F3F4F6; --line:#E5E7EB;
+  --ink:#111318; --ink-2:#6B7280; --ink-3:#AAB0BA;
+  --acc:#6BC791;        /* 네온 그린 면 (카드·마이크) */
+  --on-acc:#06200F;     /* 그린 면 위 글자 */
+  --acc-ink:#1F6E45;    /* 흰 바탕 위 그린 글자 (대비 4.5 이상) */
+  --acc-soft:#EAF6EF;   /* 연한 판 */
+  --miss:#E5484D; --miss-soft:#FDEBEC;
+  --gold:#FFC93C;
+  --r-card:24px; --r-bubble:18px; --r-pill:16px;
+  --gut:20px;
+  --font:'Pretendard','Pretendard Variable',-apple-system,'Apple SD Gothic Neo','Malgun Gothic',sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0F1114; --surface:#1B1E24; --line:#2A2E36;
+    --ink:#F2F3F5; --ink-2:#A1A8B3; --ink-3:#5F6672;
+    --acc:#5DB585; --on-acc:#04160B; --acc-ink:#86D3A7; --acc-soft:#17291F;
+    --miss:#F07075; --miss-soft:#3A1C1F;
+    color-scheme:dark;
+  }
+}
+*{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font);
+  font-size:15px; line-height:1.5; letter-spacing:-.01em;
+  overscroll-behavior:none; -webkit-user-select:none; user-select:none}
+button{font-family:inherit; cursor:pointer; border:none; background:none; color:inherit; letter-spacing:inherit}
+button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
+.en{font-family:var(--font)}
+
+#app{max-width:520px; margin:0 auto; min-height:100vh; position:relative}
+.screen{display:none; padding:12px var(--gut) 40px; animation:fade .24s ease both}
+.screen.on{display:block}
+#s-home{padding-bottom:96px}
+@keyframes fade{from{opacity:0; transform:translateY(6px)}to{opacity:1; transform:none}}
+@media (prefers-reduced-motion: reduce){ *{animation:none!important; transition:none!important} }
+
+/* ---------- 프로필 고르기 ---------- */
+#s-pick{padding-top:10vh}
+#s-pick .k{font-size:13px; font-weight:600; color:var(--ink-2)}
+#s-pick h1{font-size:28px; font-weight:700; letter-spacing:-.03em; margin:4px 0 28px}
+.pgrid{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.pcard{position:relative; background:var(--surface); border-radius:var(--r-card); padding:24px 16px 20px; text-align:center;
+  transition:transform .15s}
+.pcard:active{transform:scale(.97)}
+.pav{width:76px; height:76px; border-radius:50%; margin:0 auto 12px; display:grid; place-items:center; font-size:40px; background:var(--bg)}
+.pav.photo{background-size:cover; background-position:center; font-size:0}
+.pcard b{display:block; font-size:20px; font-weight:700; letter-spacing:-.02em}
+.pcard span{font-size:13px; color:var(--ink-2)}
+.pcard .st{margin-top:8px; font-size:12px; font-weight:600; color:var(--ink-2)}
+.pcam,.pedit{position:absolute; top:10px; width:32px; height:32px; border-radius:50%; background:var(--bg);
+  display:grid; place-items:center; font-size:14px; z-index:2}
+.pcam{right:10px} .pedit{left:10px}
+.padd{border:1.5px dashed var(--line); background:transparent; display:grid; place-items:center; min-height:170px;
+  color:var(--ink-2); font-weight:600}
+.pnote{margin-top:22px; font-size:12px; color:var(--ink-3); line-height:1.6; text-align:center}
+
+/* ---------- 홈: 위 줄 (프로필 칩 · 오늘 · 별 칩) ---------- */
+.topbar{display:grid; grid-template-columns:1fr auto 1fr; align-items:center; gap:8px; padding:6px 0 0}
+.chip{display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 14px; border-radius:999px;
+  background:var(--surface); font-weight:600; font-size:14px; white-space:nowrap}
+.chip .av{width:24px; height:24px; border-radius:50%; display:grid; place-items:center; font-size:15px; background-size:cover; background-position:center}
+.chip .av.photo{font-size:0}
+.chip.star{justify-self:end; background:var(--acc-soft); color:var(--acc-ink); font-weight:700}
+.topbar .ttl{font-size:16px; font-weight:700}
+.topbar .left{justify-self:start}
+.tline{height:3px; background:var(--surface); border-radius:3px; margin:12px 0 22px; overflow:hidden}
+.tline i{display:block; height:100%; background:var(--acc); border-radius:3px; transition:width .4s}
+
+.eyebrow{font-size:13px; color:var(--ink-2); font-weight:500}
+.h1{font-size:26px; font-weight:700; letter-spacing:-.03em; margin:2px 0 18px; line-height:1.3}
+
+/* 오늘 할 카드 = 화면의 주인공. 강조색은 여기에 */
+.hero{display:block; width:100%; background:var(--acc); color:var(--on-acc); border-radius:var(--r-card);
+  padding:26px 20px 22px; text-align:center}
+.hero .hcover{width:96px; height:96px; margin:0 auto 14px; border-radius:20px; display:grid; place-items:center; font-size:60px;
+  background-size:contain; background-position:center; background-repeat:no-repeat}
+.hero .hcover.hasimg{font-size:0; background-color:rgba(255,255,255,.55); width:140px; height:104px}
+.hero h3{margin:0; font-size:22px; font-weight:700; letter-spacing:-.02em; line-height:1.3}
+.hero .hm{font-size:13px; opacity:.72; margin-top:4px}
+.hero .hbtn{display:inline-block; margin-top:16px; background:#fff; color:#111318; font-weight:700; font-size:15px;
+  padding:12px 40px; border-radius:999px}
+.hero.done{background:var(--surface); color:var(--ink)}
+.hero.done .hbtn{background:var(--ink); color:var(--bg)}
+
+.nextrow{display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px}
+.nbook{display:flex; align-items:center; gap:12px; background:var(--surface); border-radius:var(--r-bubble); padding:14px; text-align:left; min-width:0}
+.nbook .nc{width:40px; height:40px; flex-shrink:0; border-radius:12px; display:grid; place-items:center; font-size:26px;
+  background-size:contain; background-position:center; background-repeat:no-repeat}
+.nbook .nc.hasimg{font-size:0}
+.nbook b{display:block; font-size:15px; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+.nbook span{font-size:12px; color:var(--ink-2)}
+.nbook.done span{color:var(--acc-ink); font-weight:600}
+.nbook div{min-width:0}
+
+.sech{display:flex; align-items:baseline; justify-content:space-between; margin:30px 0 12px}
+.sech h2{margin:0; font-size:18px; font-weight:700; letter-spacing:-.02em}
+.sech span{font-size:14px; font-weight:600; color:var(--ink-2); font-variant-numeric:tabular-nums}
+
+/* 도장판 */
+.sc-grid{display:grid; grid-template-columns:repeat(5,1fr); gap:12px}
+.stamp{aspect-ratio:1; border-radius:50%; background:var(--surface); display:grid; place-items:center; font-size:22px}
+.stamp.on{background:var(--acc); animation:pop .4s cubic-bezier(.34,1.56,.64,1) both}
+.sc-note{font-size:12px; color:var(--ink-3); margin:12px 0 0; line-height:1.55}
+.wkbar{height:6px; background:var(--surface); border-radius:99px; overflow:hidden; margin:14px 0 0}
+.wkbar i{display:block; height:100%; background:var(--acc); border-radius:99px; transition:width .4s}
+.coupon{display:flex; align-items:center; gap:12px; margin-top:14px; padding:14px 16px; border-radius:var(--r-bubble); background:var(--surface)}
+.coupon .cn{flex:1; font-size:14px; font-weight:700}
+.coupon .cn small{display:block; font-weight:500; font-size:12px; color:var(--ink-2); margin-top:2px}
+.coupon button{background:var(--ink); color:var(--bg); font-weight:700; font-size:12px; padding:9px 13px; border-radius:10px}
+
+/* 책장 */
+.tabs{display:flex; gap:8px; overflow-x:auto; padding:2px 0 14px; scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{height:36px; padding:0 16px; border-radius:999px; background:var(--surface); font-weight:600; font-size:14px; color:var(--ink-2); white-space:nowrap}
+.tab.on{background:var(--ink); color:var(--bg)}
+.shelf{display:grid; grid-template-columns:repeat(auto-fill,minmax(140px,1fr)); gap:10px}
+.book{position:relative; background:var(--surface); border-radius:var(--r-bubble); padding:12px 12px 14px; text-align:left}
+.book:active{transform:scale(.98)}
+.cover{height:96px; border-radius:12px; display:grid; place-items:center; font-size:44px; margin-bottom:10px;
+  background:var(--bg)!important; background-size:contain!important; background-position:center!important; background-repeat:no-repeat!important}
+.cover.hasimg{font-size:0}
+.book h3{margin:0 0 2px; font-size:14px; font-weight:700; line-height:1.3}
+.book .meta{font-size:12px; color:var(--ink-2)}
+.stars{position:absolute; top:16px; right:16px; font-size:11px}
+.badge-new,.mybadge{position:absolute; top:16px; left:16px; font-size:10px; font-weight:700; padding:3px 7px; border-radius:6px}
+.badge-new{background:var(--acc); color:var(--on-acc)}
+.mybadge{background:var(--ink); color:var(--bg)}
+.foot{text-align:center; color:var(--ink-3); font-size:12px; padding:28px 0 8px}
+
+/* 아래 탭 */
+.tabbar{position:fixed; left:0; right:0; bottom:0; z-index:20; background:var(--bg); border-top:1px solid var(--line);
+  padding:8px max(var(--gut),env(safe-area-inset-right,0px)) calc(8px + env(safe-area-inset-bottom,0px)) max(var(--gut),env(safe-area-inset-left,0px))}
+.tabbar .in{max-width:520px; margin:0 auto; display:grid; grid-template-columns:repeat(4,1fr)}
+.tabbar button{display:flex; flex-direction:column; align-items:center; gap:3px; font-size:11px; font-weight:600; color:var(--ink-3); padding:4px 0}
+.tabbar button.on{color:var(--ink)}
+.tabbar button[aria-disabled="true"]{opacity:.45}
+.tabbar svg{width:24px; height:24px}
+
+/* ---------- 읽기 (스픽 '이제 말해 보세요' 짜임) ---------- */
+.rtop{display:flex; align-items:center; gap:14px; padding:6px 0 18px}
+.xbtn{width:32px; height:32px; display:grid; place-items:center; flex-shrink:0; color:var(--ink-2)}
+.xbtn svg{width:22px; height:22px}
+.segs{flex:1; display:flex; gap:6px}
+.segs i{flex:1; height:6px; border-radius:6px; background:var(--surface)}
+.segs i.done{background:var(--acc)}
+.segs i.now{background:var(--acc-soft)}
+.pg{display:none}
+
+.scene{position:relative; border-radius:var(--r-card); background:var(--surface); display:grid; place-items:center;
+  height:180px; font-size:72px; overflow:hidden; margin-bottom:12px}
+.scene img{width:100%; height:100%; object-fit:cover}
+.scene.hasimg{height:auto; background:transparent!important}
+.scene.hasimg img{height:auto; display:block; object-fit:contain; border-radius:var(--r-card)}
+.scene span{animation:bob 3.4s ease-in-out infinite}
+@keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.photoBtn{position:absolute; right:12px; bottom:12px; background:var(--bg); border-radius:999px; padding:7px 12px;
+  font-size:12px; font-weight:600; z-index:2}
+
+.speakpanel{background:var(--surface); border-radius:var(--r-card); padding:22px 18px 18px; text-align:center}
+.saynow{display:inline-block; background:var(--acc); color:var(--on-acc); font-size:14px; font-weight:700; padding:7px 16px; border-radius:999px}
+.sentence{font-size:30px; line-height:1.35; font-weight:700; letter-spacing:-.02em; margin:16px 0 10px; min-height:84px;
+  display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:0 9px; color:var(--ink-3)}
+.w{transition:color .15s, background .15s; padding:0 2px; border-radius:6px}
+.w.speak{color:var(--ink)}
+.w.ok{color:var(--acc-ink)}
+.w.no{color:var(--miss); text-decoration:underline; text-decoration-thickness:3px; text-underline-offset:5px; text-decoration-color:var(--miss-soft)}
+.ko{font-size:16px; color:var(--ink-2); font-weight:500; min-height:24px}
+.ko.hide{visibility:hidden}
+.ko-toggle{margin-top:6px; font-size:13px; font-weight:600; color:var(--ink-3); padding:6px 10px}
+.heard{font-size:13px; color:var(--ink-3); min-height:20px; margin-top:4px}
+.heard b{color:var(--ink-2); font-weight:600}
+
+.controls{display:flex; align-items:center; justify-content:center; gap:16px; margin-top:22px}
+.cbtn{width:52px; height:52px; border-radius:50%; background:var(--surface); display:grid; place-items:center; color:var(--ink-2)}
+.cbtn svg{width:24px; height:24px}
+.btn-mic{width:76px; height:76px; border-radius:50%; background:var(--acc); color:var(--on-acc); display:grid; place-items:center}
+.btn-mic svg{width:32px; height:32px}
+.btn-mic.rec{animation:pulse 1.1s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--acc-soft)}50%{box-shadow:0 0 0 12px var(--acc-soft)}}
+.speed{height:36px; padding:0 14px; border-radius:999px; background:var(--surface); font-weight:700; font-size:14px; color:var(--ink-2); font-variant-numeric:tabular-nums}
+.micstate{text-align:center; font-size:13px; color:var(--ink-3); margin-top:10px; min-height:20px}
+.navrow{display:flex; justify-content:center; gap:8px; margin-top:12px}
+.navbtn{font-size:15px; font-weight:600; color:var(--ink-2); padding:10px 16px; border-radius:999px}
+.navbtn.next{color:var(--ink)}
+.navbtn.go{background:var(--ink); color:var(--bg)}
+
+.result{margin-top:14px; border-radius:var(--r-bubble); padding:14px 16px; display:none; align-items:center; gap:14px;
+  background:var(--bg); border:1px solid var(--line); animation:pop .3s cubic-bezier(.34,1.56,.64,1) both}
+.result.on{display:flex}
+@keyframes pop{from{opacity:0; transform:scale(.94)}to{opacity:1; transform:scale(1)}}
+.score{min-width:56px; font-size:22px; font-weight:700; font-variant-numeric:tabular-nums}
+.result .txt{font-size:15px; font-weight:700; line-height:1.4}
+.result .txt small{display:block; font-weight:500; font-size:13px; margin-top:2px; color:var(--ink-2)}
+
+/* ---------- 퀴즈 ---------- */
+.qbox{padding-top:4px}
+.qnum{font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:10px}
+.qtext{font-size:26px; font-weight:700; line-height:1.35; letter-spacing:-.02em; margin:0 0 22px; text-align:center;
+  padding:28px 18px; border-radius:var(--r-card); background:var(--surface); min-height:110px; display:flex; align-items:center; justify-content:center}
+.opt{display:block; width:100%; text-align:left; padding:16px 18px; border-radius:var(--r-bubble); border:1.5px solid var(--line);
+  background:var(--bg); font-size:17px; font-weight:600; margin-bottom:10px}
+.opt.ok{border-color:var(--acc-ink); background:var(--acc-soft); color:var(--acc-ink)}
+.opt.no{border-color:var(--miss); background:var(--miss-soft); color:var(--miss)}
+.qscene{margin-bottom:14px; display:none}
+.qscene.on{display:block}
+.qbook{display:flex; align-items:center; gap:12px; padding:10px 12px; border-radius:var(--r-bubble); background:var(--surface)}
+.qbcover{width:44px; height:44px; border-radius:10px; background:var(--bg); display:grid; place-items:center; font-size:24px; flex-shrink:0}
+.qbt b{display:block; font-size:15px; font-weight:700; line-height:1.3}
+.qbt span{font-size:12px; color:var(--ink-2)}
+.oxrow{display:grid; grid-template-columns:1fr 1fr; gap:12px}
+.ox{padding:24px 0; border-radius:var(--r-card); border:1.5px solid var(--line); background:var(--bg); font-size:40px; line-height:1}
+.ox .lb{display:block; font-size:14px; font-weight:600; margin-top:10px; color:var(--ink-2)}
+.ox.pickok{border-color:var(--acc-ink); background:var(--acc-soft)}
+.ox.pickno{border-color:var(--miss); background:var(--miss-soft)}
+.qhint{text-align:center; font-size:14px; color:var(--ink-2); margin:16px 0 0; min-height:22px}
+
+/* ---------- 보상 ---------- */
+.reward{text-align:center; padding:56px 0 20px}
+.reward .trophy{font-size:84px; animation:bob 2.4s ease-in-out infinite; display:inline-block}
+.reward h2{font-size:26px; font-weight:700; letter-spacing:-.03em; margin:16px 0 6px}
+.reward p{color:var(--ink-2); margin:0 0 22px; line-height:1.55}
+.big-stars{font-size:40px; letter-spacing:6px; margin-bottom:28px}
+.big-stars span{display:inline-block; animation:pop .4s cubic-bezier(.34,1.56,.64,1) both}
+.big-stars span:nth-child(2){animation-delay:.14s}
+.big-stars span:nth-child(3){animation-delay:.28s}
+.btn-wide{display:block; width:100%; max-width:320px; margin:0 auto; background:var(--ink); color:var(--bg); font-weight:700; font-size:16px; padding:16px; border-radius:var(--r-pill)}
+.btn-acc{background:var(--acc); color:var(--on-acc)}
+.btn-line{background:var(--surface); color:var(--ink)}
+
+/* ---------- 리포트 · 책 추가 · 프로필 편집 ---------- */
+.subtop{display:flex; align-items:center; justify-content:space-between; padding:6px 0 18px}
+.subtop .t{font-size:13px; color:var(--ink-2)}
+.subtop .t b{display:block; font-size:22px; color:var(--ink); font-weight:700; letter-spacing:-.02em}
+.rcard{background:var(--surface); border-radius:var(--r-card); padding:18px; margin-bottom:12px}
+.rcard h3{margin:0 0 14px; font-size:14px; font-weight:700; color:var(--ink-2)}
+.grid4{display:grid; grid-template-columns:repeat(2,1fr); gap:16px}
+.kpi b{display:block; font-size:26px; font-weight:700; letter-spacing:-.02em; font-variant-numeric:tabular-nums}
+.kpi span{font-size:12px; color:var(--ink-2)}
+.wordchip{display:inline-block; background:var(--bg); color:var(--miss); font-size:14px; font-weight:600; padding:6px 12px; border-radius:99px; margin:0 6px 7px 0}
+.emptynote{color:var(--ink-2); font-size:14px; margin:0}
+.histrow{display:flex; align-items:center; gap:10px; margin-bottom:10px; font-size:13px}
+.histrow .nm{flex:1; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-weight:600}
+.histrow .bb{width:90px; height:6px; background:var(--bg); border-radius:99px; overflow:hidden}
+.histrow .bb i{display:block; height:100%; background:var(--acc)}
+.seg{display:flex; gap:8px; margin-bottom:14px; overflow-x:auto}
+.seg button{flex:1; height:40px; padding:0 12px; border-radius:999px; background:var(--surface); font-weight:600; font-size:14px; white-space:nowrap}
+.seg button.on{background:var(--ink); color:var(--bg)}
+.field{margin-bottom:14px}
+.field label{display:block; font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:6px}
+.field input,.field textarea,.field select{width:100%; padding:13px 14px; border-radius:var(--r-pill); border:1.5px solid var(--line);
+  background:var(--bg); font-family:inherit; font-size:16px; color:var(--ink); -webkit-user-select:text; user-select:text}
+.field textarea{min-height:180px; line-height:1.6; resize:vertical}
+.field .hint{font-size:12px; color:var(--ink-3); margin-top:6px; line-height:1.55}
+.emojis{display:flex; gap:8px; flex-wrap:wrap}
+.emojis button{width:44px; height:44px; border-radius:12px; background:var(--bg); font-size:24px; border:1.5px solid var(--line)}
+.emojis button.on{border-color:var(--acc-ink); background:var(--acc-soft)}
+.textbtn{display:block; margin:14px auto 0; color:var(--miss); font-weight:600; font-size:14px; padding:8px}
+
+.warn{background:var(--miss-soft); color:var(--ink); border-radius:var(--r-bubble); padding:14px 16px; font-size:13px; line-height:1.55; margin-bottom:16px; display:none}
+.warn.on{display:block}
+
+@media(max-width:380px){
+  :root{--gut:16px}
+  .sentence{font-size:26px}
+  .h1{font-size:24px}
+}
+.bar{flex:1; height:6px; background:var(--surface); border-radius:6px; overflow:hidden}
+.bar i{display:block; height:100%; background:var(--acc); border-radius:6px; transition:width .35s}
+.toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(84px + env(safe-area-inset-bottom,0px)); z-index:30;
+  background:var(--ink); color:var(--bg); font-size:14px; font-weight:600; padding:10px 16px; border-radius:999px; white-space:nowrap}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ========== 누가 할까요 ========== -->
+<section id="s-pick" class="screen on">
+  <div class="k">가족 영어</div>
+  <h1>누가 할까요?</h1>
+  <div class="pgrid" id="pgrid"></div>
+  <input type="file" id="photoInput" accept="image/*" style="display:none">
+  <input type="file" id="pageInput" accept="image/*" capture="environment" style="display:none">
+  <p class="pnote">📷 사진 넣기 · ✎ 이름 고치기<br>이름과 사진은 이 기기에만 저장되고 인터넷으로 전송되지 않습니다.</p>
+</section>
+
+<!-- ========== 프로필 추가·고치기 ========== -->
+<section id="s-prof" class="screen">
+  <div class="subtop">
+    <div class="t">이 기기에만 저장돼요<b id="pfTitle">프로필 추가</b></div>
+    <button class="xbtn" onclick="go('pick');drawPick()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="rcard">
+    <div class="field"><label for="pfKo">이름</label><input id="pfKo" type="text" placeholder="예: 지우"></div>
+    <div class="field"><label for="pfEn">영어 이름</label><input id="pfEn" type="text" placeholder="예: Jiwoo">
+      <p class="hint">그림책 문장 속 이름 자리에 들어가요.</p></div>
+    <div class="field"><label for="pfGrade">소개</label><input id="pfGrade" type="text" placeholder="예: 초등 3학년"></div>
+    <div class="field"><label for="pfLevel">수준</label>
+      <select id="pfLevel">
+        <option value="kid1">아이 · 첫걸음 (Lv.1~2)</option>
+        <option value="kid2">아이 · 이야기 (Lv.2~4)</option>
+        <option value="adult">어른 (Lv.3~4)</option>
+      </select></div>
+    <div class="field"><label>그림</label><div class="emojis" id="pfEmojis"></div></div>
+    <button class="btn-wide btn-acc" onclick="saveProfile()">저장</button>
+    <button class="textbtn" id="pfDel" onclick="delProfile()">이 프로필 지우기</button>
+  </div>
+</section>
+
+<!-- ========== 홈 (스픽 '코스' 짜임) ========== -->
+<section id="s-home" class="screen">
+  <div class="topbar">
+    <button class="chip left" onclick="go('pick');drawPick()"><span id="hName"></span><span class="av" id="hAv"></span></button>
+    <div class="ttl">오늘</div>
+    <span class="chip star">⭐ <span id="hStars">0</span></span>
+  </div>
+  <div class="tline"><i id="tLine" style="width:0%"></i></div>
+
+  <div id="micWarn" class="warn"></div>
+
+  <div class="eyebrow" id="hHi">오늘 할 것</div>
+  <h1 class="h1" id="missionText">책 3권 읽기</h1>
+  <div id="todayHero"></div>
+  <div class="nextrow" id="todayNext"></div>
+
+  <div class="sech"><h2>도장판</h2><span><span id="scNow">0</span> / 10</span></div>
+  <div class="sc-grid" id="stampGrid"></div>
+  <div class="wkbar"><i id="wkBar" style="width:0%"></i></div>
+  <p class="sc-note"><span id="scWeek">이번 주 0/7일</span> · 일주일을 빠짐없이 채우면 도장 1개, 도장 10개면 다이소 이용권 1장</p>
+  <div id="couponBox"></div>
+
+  <div class="sech" id="shelfTop"><h2>책장</h2><button onclick="openAdd()" style="font-size:14px; font-weight:600; color:var(--ink-2)">+ 책 추가</button></div>
+  <div class="tabs" id="tabs"></div>
+  <div class="shelf" id="shelf"></div>
+  <div class="foot"><button onclick="go('report');drawReport()" style="font-weight:600; color:var(--ink-2); padding:8px">📊 학습 리포트</button></div>
+
+  <nav class="tabbar" aria-label="메뉴"><div class="in">
+    <button class="on" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>홈</button>
+    <button aria-disabled="true" onclick="soon('클립')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>클립</button>
+    <button aria-disabled="true" onclick="soon('대화')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6a3 3 0 013-3h10a3 3 0 013 3v7a3 3 0 01-3 3H10l-4 4v-4H7a3 3 0 01-3-3z"/></svg>대화</button>
+    <button onclick="document.getElementById('shelfTop').scrollIntoView({behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="4" height="16" rx="1.5"/><rect x="10" y="4" width="4" height="16" rx="1.5"/><rect x="16" y="4" width="4" height="16" rx="1.5"/></svg>책장</button>
+  </div></nav>
+  <div class="toast" id="toast" hidden></div>
+</section>
+
+<!-- ========== 읽기 (스픽 '이제 말해 보세요' 짜임) ========== -->
+<section id="s-read" class="screen">
+  <div class="rtop">
+    <button class="xbtn" onclick="exitBook()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="segs" id="segs"></div>
+    <div class="pg" id="pgNum"></div>
+  </div>
+
+  <div class="scene" id="scene"><span>📖</span></div>
+
+  <div class="speakpanel">
+    <span class="saynow">이제 말해 보세요</span>
+    <p class="sentence en" id="sentence"></p>
+    <p class="ko hide" id="koText"></p>
+    <button class="ko-toggle" onclick="toggleKo()" id="koBtn">뜻 보기</button>
+    <div class="heard" id="heard"></div>
+  </div>
+
+  <div class="controls">
+    <button class="cbtn" onclick="speak()" aria-label="다시 듣기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12a8 8 0 1 0 2.5-5.8"/><path d="M4 4v4h4"/></svg></button>
+    <button class="btn-mic" id="micBtn" onclick="toggleMic()" aria-label="따라 말하기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="9" y="3" width="6" height="11" rx="3" fill="currentColor"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg></button>
+    <button class="speed" id="speedBtn" onclick="cycleRate()" aria-label="읽어 주는 속도">0.7×</button>
+  </div>
+  <div class="micstate" id="micState">마이크를 누르고 따라 읽어 보세요</div>
+
+  <div class="result" id="result">
+    <div class="score" id="scoreCircle">0%</div>
+    <div class="txt" id="resultTxt"></div>
+  </div>
+
+  <div class="navrow">
+    <button class="navbtn" id="prevBtn" onclick="prevPage()">← 이전</button>
+    <button class="navbtn next" id="nextBtn" onclick="nextPage()">다음 문장으로</button>
+  </div>
+</section>
+
+<!-- ========== 퀴즈 ========== -->
+<section id="s-quiz" class="screen">
+  <div class="rtop">
+    <button class="xbtn" onclick="exitBook()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    <div class="bar"><i id="qBar" style="width:0%"></i></div>
+    <div class="pg" id="qNum">1/2</div>
+  </div>
+  <div class="qbox">
+    <div class="qnum" id="qLabel">QUIZ</div>
+    <div id="qScene" class="qscene"></div>
+    <div class="qtext en" id="qText"></div>
+    <div id="qOpts"></div>
+  </div>
+</section>
+
+<!-- ========== 보상 ========== -->
+<section id="s-reward" class="screen">
+  <div class="reward">
+    <div class="trophy" id="trophy">🏆</div>
+    <h2 id="rwTitle">잘했어요!</h2>
+    <p id="rwSub"></p>
+    <div class="big-stars" id="rwStars"></div>
+    <button class="btn-wide btn-acc" onclick="go('home');drawHome()">홈으로 돌아가기</button>
+  </div>
+</section>
+
+<!-- ========== 우리 책 추가 ========== -->
+<section id="s-add" class="screen">
+  <div class="subtop">
+    <div class="t">우리 집에 있는 책<b>새 책 추가</b></div>
+    <button class="xbtn" onclick="go('home');drawHome()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+
+  <div class="rcard">
+    <div class="field">
+      <label>책 제목</label>
+      <input id="adTitle" type="text" placeholder="예: Brown Bear, Brown Bear">
+    </div>
+    <div class="field">
+      <label>표지 그림 (이모지 하나)</label>
+      <input id="adEmoji" type="text" value="📚" maxlength="4" style="width:110px; text-align:center; font-size:24px">
+    </div>
+    <div class="field">
+      <label>난이도</label>
+      <select id="adLevel">
+        <option value="1">Lv.1 첫걸음</option>
+        <option value="2" selected>Lv.2 짧은 문장</option>
+        <option value="3">Lv.3 이야기</option>
+        <option value="4">Lv.4 도전</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>책 문장 (한 줄에 한 문장)</label>
+      <textarea id="adPages" placeholder="Brown bear, brown bear, what do you see? | 갈색 곰아, 무엇이 보이니?
+I see a red bird looking at me. | 나를 보는 빨간 새가 보여."></textarea>
+      <p class="hint">한 줄이 책의 한 페이지가 됩니다. 한글 뜻을 넣고 싶으면 <b>|</b> 뒤에 적으세요 (없어도 됩니다).<br>
+      저장한 뒤 책을 열면 페이지마다 <b>📷 사진 넣기</b>로 그 페이지 그림을 찍어 넣을 수 있어요.</p>
+    </div>
+    <button class="btn-wide btn-acc" style="max-width:none" onclick="saveMyBook()">책장에 추가하기</button>
+  </div>
+
+  <div class="rcard">
+    <h3>📗 윙크 책 불러오기</h3>
+    <p class="emptynote" style="margin-bottom:14px; line-height:1.6">
+      PC에서 만든 <b>wink-data.zip</b> 파일을 고르면 책이 그림째로 들어옵니다.<br>
+      이 기기 안에만 저장되고 인터넷으로 전송되지 않습니다.</p>
+    <input type="file" id="winkInput" accept=".zip" style="display:none">
+    <button class="btn-wide btn-line" style="max-width:none" onclick="document.getElementById('winkInput').click()">파일 고르기</button>
+    <div id="winkStatus" style="margin-top:12px; font-size:13px; font-weight:600; color:var(--acc-ink)"></div>
+  </div>
+
+  <div class="rcard">
+    <h3>추가한 책</h3>
+    <div id="myList"><p class="emptynote">아직 없어요.</p></div>
+  </div>
+</section>
+
+<!-- ========== 부모 리포트 ========== -->
+<section id="s-report" class="screen">
+  <div class="subtop">
+    <div class="t">가족 기록<b>학습 리포트</b></div>
+    <button class="xbtn" onclick="go('home');drawHome()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+
+  <div class="seg" id="repSeg"></div>
+
+  <div class="rcard">
+    <h3>한눈에 보기</h3>
+    <div class="grid4">
+      <div class="kpi"><b id="kBooks">0</b><span>읽은 책</span></div>
+      <div class="kpi"><b id="kSent">0</b><span>읽은 문장</span></div>
+      <div class="kpi"><b id="kAcc">0%</b><span>평균 정확도</span></div>
+      <div class="kpi"><b id="kStreak">0일</b><span>연속 출석</span></div>
+    </div>
+  </div>
+
+  <div class="rcard">
+    <h3>책별 성적 (최고 기록)</h3>
+    <div id="bookHist"><p class="emptynote">아직 읽은 책이 없어요.</p></div>
+  </div>
+
+  <div class="rcard">
+    <h3>자주 놓친 단어 · 연습이 필요해요</h3>
+    <div id="weakWords"><p class="emptynote">아직 데이터가 없어요.</p></div>
+  </div>
+
+  <div class="rcard">
+    <h3>기록 관리</h3>
+    <button class="btn-wide btn-line" style="max-width:none" onclick="resetOne()">이 사람의 기록 지우기</button>
+  </div>
+</section>
+
+</div>
+
+<script>
+/* ============================================================
+   1. 프로필 — 이름·사진은 이 기기(localStorage)에만 저장한다
+      (공개 주소에 올리므로 코드에는 이름을 넣지 않는다)
+   ============================================================ */
+const LEVEL_SET = {kid1:[1,2], kid2:[2,3,4], adult:[3,4]};
+const PROF_KEY = 'readalong.profiles';
+const EMOJIS = ['🦊','🐰','🐻','🐼','🐯','🦁','🐧','🐳','🙂','😎'];
+function withLevels(p){ return Object.assign({}, p, {levels: LEVEL_SET[p.kind] || [1,2,3,4], bg:'var(--surface)'}); }
+function loadProfiles(){
+  try{ const r = JSON.parse(localStorage.getItem(PROF_KEY)); if(Array.isArray(r)) return r.map(withLevels); }catch(e){}
+  return [];
+}
+function saveProfiles(){
+  try{ localStorage.setItem(PROF_KEY, JSON.stringify(KIDS.map(({id,ko,en,grade,emoji,kind})=>({id,ko,en,grade,emoji,kind})))); }catch(e){}
+}
+let KIDS = loadProfiles();
+
+/* ============================================================
+   2. 책 데이터  ← 여기에 책을 추가하면 앱에 바로 나옵니다
+   ------------------------------------------------------------
+   {name} 을 문장에 쓰면 읽는 사람의 영어 이름으로 바뀝니다
+   level : 1~4 / pages : {t:영어, k:한글뜻, e:그림} / quiz : {q,o,a}
+   ============================================================ */
+const BOOKS = [
+{
+  id:'mycat', level:1, title:'My Cat', emoji:'🐱', bg:'linear-gradient(135deg,#FFE8CC,#FFD1A8)',
+  pages:[
+    {t:'I have a cat.', k:'나는 고양이가 있어요.', e:'🐱'},
+    {t:'My cat is small.', k:'내 고양이는 작아요.', e:'🐈'},
+    {t:'My cat is white.', k:'내 고양이는 하얘요.', e:'🤍'},
+    {t:'My cat can run.', k:'내 고양이는 달릴 수 있어요.', e:'💨'},
+    {t:'My cat can jump.', k:'내 고양이는 뛸 수 있어요.', e:'⬆️'},
+    {t:'My cat likes milk.', k:'내 고양이는 우유를 좋아해요.', e:'🥛'},
+    {t:'My cat sleeps a lot.', k:'내 고양이는 잠을 많이 자요.', e:'😴'},
+    {t:'I love my cat.', k:'나는 내 고양이를 사랑해요.', e:'❤️'}
+  ],
+  quiz:[{q:'What color is the cat?', o:['White','Black','Blue'], a:0},
+        {q:'What does the cat like?', o:['Water','Milk','Bread'], a:1}]
+},
+{
+  id:'icando', level:1, title:'{name} Can Do It', emoji:'💪', bg:'linear-gradient(135deg,#D9F2E6,#B4E5CE)',
+  pages:[
+    {t:'{name} can run.', k:'{ko}는 달릴 수 있어요.', e:'🏃'},
+    {t:'{name} can jump.', k:'{ko}는 뛸 수 있어요.', e:'🤸'},
+    {t:'{name} can swim.', k:'{ko}는 수영할 수 있어요.', e:'🏊'},
+    {t:'{name} can sing.', k:'{ko}는 노래할 수 있어요.', e:'🎤'},
+    {t:'{name} can dance.', k:'{ko}는 춤출 수 있어요.', e:'💃'},
+    {t:'{name} can read.', k:'{ko}는 책을 읽을 수 있어요.', e:'📖'},
+    {t:'{name} can count.', k:'{ko}는 셀 수 있어요.', e:'🔢'},
+    {t:'{name} can do it.', k:'{ko}는 할 수 있어요.', e:'💪'}
+  ],
+  quiz:[{q:'Can {name} swim?', o:['Yes, she can.','No, she cannot.'], a:0},
+        {q:'What can {name} read?', o:['A book','A car','A tree'], a:0}]
+},
+{
+  id:'family', level:1, title:'My Family', emoji:'👨‍👩‍👧‍👧', bg:'linear-gradient(135deg,#FFE1EC,#FFC2D8)',
+  pages:[
+    {t:'This is my family.', k:'이건 우리 가족이에요.', e:'👨‍👩‍👧‍👧'},
+    {t:'This is my mom.', k:'이분은 우리 엄마예요.', e:'👩'},
+    {t:'This is my dad.', k:'이분은 우리 아빠예요.', e:'👨'},
+    {t:'This is my sister.', k:'이 아이는 내 자매예요.', e:'👧'},
+    {t:'We eat together.', k:'우리는 함께 먹어요.', e:'🍚'},
+    {t:'We play together.', k:'우리는 함께 놀아요.', e:'🎲'},
+    {t:'We read books at night.', k:'우리는 밤에 책을 읽어요.', e:'🌙'},
+    {t:'I love my family.', k:'나는 우리 가족을 사랑해요.', e:'❤️'}
+  ],
+  quiz:[{q:'What do they do together?', o:['Eat and play','Run and swim','Sing and drive'], a:0},
+        {q:'When do they read books?', o:['At night','At noon','In the car'], a:0}]
+},
+{
+  id:'bus', level:2, title:'The Big Red Bus', emoji:'🚌', bg:'linear-gradient(135deg,#FFD9D9,#FFB3B3)',
+  pages:[
+    {t:'Here comes the big red bus.', k:'큰 빨간 버스가 와요.', e:'🚌'},
+    {t:'The bus is very big.', k:'그 버스는 아주 커요.', e:'📏'},
+    {t:'I get on the bus.', k:'나는 버스에 타요.', e:'🚏'},
+    {t:'I sit by the window.', k:'나는 창가에 앉아요.', e:'🪟'},
+    {t:'The bus goes down the street.', k:'버스가 길을 달려가요.', e:'🛣️'},
+    {t:'I see a dog and a bird.', k:'나는 개와 새를 봐요.', e:'🐕'},
+    {t:'The bus stops at my school.', k:'버스가 학교에 멈춰요.', e:'🏫'},
+    {t:'Bye bye, big red bus.', k:'안녕, 큰 빨간 버스.', e:'👋'}
+  ],
+  quiz:[{q:'What color is the bus?', o:['Red','Green','Yellow'], a:0},
+        {q:'Where does the bus stop?', o:['At the park','At my school','At the shop'], a:1}]
+},
+{
+  id:'bear', level:2, title:'Where Is My Bear?', emoji:'🧸', bg:'linear-gradient(135deg,#E4DDFF,#C9BEFF)',
+  pages:[
+    {t:'I cannot find my bear.', k:'내 곰인형을 찾을 수 없어요.', e:'😟'},
+    {t:'Is he under the bed?', k:'침대 밑에 있을까요?', e:'🛏️'},
+    {t:'No, he is not there.', k:'아니요, 거기 없어요.', e:'🙅'},
+    {t:'Is he in the toy box?', k:'장난감 상자 안에 있을까요?', e:'📦'},
+    {t:'No, he is not there.', k:'아니요, 거기 없어요.', e:'🙅'},
+    {t:'Is he behind the door?', k:'문 뒤에 있을까요?', e:'🚪'},
+    {t:'Yes! Here he is.', k:'네! 여기 있어요.', e:'🎉'},
+    {t:'I hug my little bear.', k:'나는 작은 곰인형을 안아요.', e:'🧸'}
+  ],
+  quiz:[{q:'Where is the bear?', o:['Under the bed','Behind the door','In the toy box'], a:1},
+        {q:'How does the child feel at the end?', o:['Happy','Angry','Sleepy'], a:0}]
+},
+{
+  id:'schoolday', level:2, title:"{name}'s School Day", emoji:'🎒', bg:'linear-gradient(135deg,#FFF0C9,#FFE08A)',
+  pages:[
+    {t:'{name} wakes up at seven.', k:'{ko}는 7시에 일어나요.', e:'⏰'},
+    {t:'She eats breakfast with her family.', k:'가족과 함께 아침을 먹어요.', e:'🍳'},
+    {t:'She puts on her backpack.', k:'가방을 메요.', e:'🎒'},
+    {t:'She walks to school with a friend.', k:'친구와 학교까지 걸어가요.', e:'👭'},
+    {t:'She reads a book in class.', k:'교실에서 책을 읽어요.', e:'📖'},
+    {t:'She plays outside at lunch time.', k:'점심시간에 밖에서 놀아요.', e:'⚽'},
+    {t:'She comes home in the afternoon.', k:'오후에 집에 와요.', e:'🏠'},
+    {t:'{name} had a very good day.', k:'{ko}는 아주 좋은 하루를 보냈어요.', e:'😊'}
+  ],
+  quiz:[{q:'When does {name} wake up?', o:['At seven','At nine','At noon'], a:0},
+        {q:'What does she do at lunch time?', o:['She sleeps','She plays outside','She goes home'], a:1}]
+},
+{
+  id:'puppy', level:3, title:'The Lost Puppy', emoji:'🐶', bg:'linear-gradient(135deg,#FFEAC9,#FFD08A)',
+  pages:[
+    {t:'One day, a little puppy got lost.', k:'어느 날, 작은 강아지가 길을 잃었어요.', e:'🐶'},
+    {t:'He looked for his mom everywhere.', k:'강아지는 엄마를 여기저기 찾았어요.', e:'🔍'},
+    {t:'He asked the cat for help.', k:'강아지는 고양이에게 도움을 청했어요.', e:'🐱'},
+    {t:'The cat shook her head and walked away.', k:'고양이는 고개를 젓고 가버렸어요.', e:'🙃'},
+    {t:'The puppy sat down and began to cry.', k:'강아지는 주저앉아 울기 시작했어요.', e:'😢'},
+    {t:'Then he heard a soft bark far away.', k:'그때 멀리서 작은 짖는 소리가 들렸어요.', e:'👂'},
+    {t:'It was his mom looking for him.', k:'그를 찾고 있던 엄마였어요.', e:'🐕'},
+    {t:'They ran to each other and hugged.', k:'둘은 서로에게 달려가 껴안았어요.', e:'🤗'}
+  ],
+  quiz:[{q:'Who did the puppy ask for help?', o:['A bird','A cat','A boy'], a:1},
+        {q:'What did the puppy hear?', o:['A soft bark','A loud car','A song'], a:0}]
+},
+{
+  id:'rainy', level:3, title:'Rainy Day Fun', emoji:'☔', bg:'linear-gradient(135deg,#D6EBFF,#AED6FF)',
+  pages:[
+    {t:'It was raining all morning long.', k:'아침 내내 비가 내렸어요.', e:'🌧️'},
+    {t:'Mia could not play outside today.', k:'미아는 오늘 밖에서 놀 수 없었어요.', e:'😔'},
+    {t:'So she made a big fort with blankets.', k:'그래서 담요로 큰 요새를 만들었어요.', e:'🏕️'},
+    {t:'She read her favorite book inside it.', k:'그 안에서 좋아하는 책을 읽었어요.', e:'📚'},
+    {t:'Her brother brought some warm cookies.', k:'오빠가 따뜻한 쿠키를 가져왔어요.', e:'🍪'},
+    {t:'They listened to the rain on the window.', k:'둘은 창문에 부딪히는 빗소리를 들었어요.', e:'🪟'},
+    {t:'Soon the sun came out again.', k:'곧 해가 다시 나왔어요.', e:'🌤️'},
+    {t:'It was the best rainy day ever.', k:'최고의 비 오는 날이었어요.', e:'🌈'}
+  ],
+  quiz:[{q:'What did Mia make?', o:['A cake','A fort','A boat'], a:1},
+        {q:'What did her brother bring?', o:['Cookies','Milk','A toy'], a:0}]
+},
+{
+  id:'turtle', level:4, title:'The Brave Little Turtle', emoji:'🐢', bg:'linear-gradient(135deg,#CFEFE0,#A5DEC6)',
+  pages:[
+    {t:'Toby the turtle was very small and slow.', k:'거북이 토비는 아주 작고 느렸어요.', e:'🐢'},
+    {t:'The other animals often laughed at him.', k:'다른 동물들은 종종 그를 비웃었어요.', e:'😆'},
+    {t:'They said he would never win a race.', k:'그들은 그가 경주에서 절대 못 이길 거라 했어요.', e:'🚫'},
+    {t:'But Toby practiced every single morning.', k:'하지만 토비는 매일 아침 연습했어요.', e:'🌅'},
+    {t:'On race day, the rabbit ran far ahead.', k:'경주 날, 토끼가 훨씬 앞서 달렸어요.', e:'🐇'},
+    {t:'The rabbit stopped to take a long nap.', k:'토끼는 멈춰서 긴 낮잠을 잤어요.', e:'💤'},
+    {t:'Toby kept walking, step after step.', k:'토비는 한 걸음씩 계속 걸었어요.', e:'👣'},
+    {t:'He crossed the finish line and everyone cheered.', k:'그가 결승선을 통과하자 모두 환호했어요.', e:'🏁'}
+  ],
+  quiz:[{q:'Why did the rabbit lose the race?', o:['He got hurt','He took a nap','He went home'], a:1},
+        {q:'What did Toby do every morning?', o:['He practiced','He slept','He ate'], a:0}]
+},
+{
+  id:'moon', level:4, title:'The Girl Who Painted the Moon', emoji:'🌙', bg:'linear-gradient(135deg,#D8D4FF,#B6AEFF)',
+  pages:[
+    {t:'Every night, Luna looked up at the dark sky.', k:'매일 밤, 루나는 어두운 하늘을 올려다봤어요.', e:'🌌'},
+    {t:'She thought the moon looked lonely up there.', k:'루나는 달이 외로워 보인다고 생각했어요.', e:'🌙'},
+    {t:'So she painted a picture of a bright yellow moon.', k:'그래서 밝은 노란 달 그림을 그렸어요.', e:'🎨'},
+    {t:'She hung the painting on her bedroom wall.', k:'그림을 방 벽에 걸었어요.', e:'🖼️'},
+    {t:'Her little brother wanted to paint stars.', k:'남동생은 별을 그리고 싶어 했어요.', e:'⭐'},
+    {t:'Together they filled the wall with light.', k:'둘은 함께 벽을 빛으로 채웠어요.', e:'✨'},
+    {t:'Now their room glows even when it is dark.', k:'이제 어두울 때도 방이 빛나요.', e:'💡'},
+    {t:'The moon is never lonely anymore.', k:'달은 이제 더 이상 외롭지 않아요.', e:'🌝'}
+  ],
+  quiz:[{q:'Why did Luna paint the moon?', o:['It looked lonely','It was too bright','She was bored'], a:0},
+        {q:'What did her brother paint?', o:['Stars','Clouds','A sun'], a:0}]
+}
+];
+
+const LEVEL_NAME = {1:'Lv.1 첫걸음', 2:'Lv.2 짧은 문장', 3:'Lv.3 이야기', 4:'Lv.4 도전'};
+
+/* ============================================================
+   3. 저장소 (아이별로 따로 저장)
+   ============================================================ */
+let KID = null;
+const keyFor = id => 'readalong.v2.' + id;
+let DB = blank();
+function blank(){ return {books:{}, stars:0, sentences:0, accSum:0, accN:0, weak:{}, days:[], stamps:0, totalStamps:0, weekProgress:0, coupons:[]}; }
+function loadFor(id){
+  try{ const r=JSON.parse(localStorage.getItem(keyFor(id))); if(r&&r.books) return Object.assign(blank(),r); }catch(e){}
+  return blank();
+}
+function save(){ if(KID){ try{ localStorage.setItem(keyFor(KID.id), JSON.stringify(DB)); }catch(e){} } }
+function dstr(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
+function today(){ return dstr(new Date()); }
+let gotStamp=false, gotCoupon=false;
+function markToday(){
+  const t=today();
+  gotStamp=false; gotCoupon=false;
+  if(DB.days.includes(t)) return;
+  const y=new Date(); y.setDate(y.getDate()-1);
+  DB.weekProgress = DB.days.includes(dstr(y)) ? (DB.weekProgress||0)+1 : 1;
+  DB.days.push(t); DB.days=DB.days.slice(-200);
+  if(DB.weekProgress>=7){          // 일주일 빠짐없이 읽으면 도장 1개
+    DB.weekProgress=0;
+    DB.stamps=(DB.stamps||0)+1;
+    DB.totalStamps=(DB.totalStamps||0)+1;
+    gotStamp=true;
+    if(DB.stamps>=10){             // 도장 10개 -> 다이소 이용권 1장
+      DB.stamps-=10;
+      DB.coupons=DB.coupons||[];
+      DB.coupons.push({date:t, used:false});
+      gotCoupon=true;
+    }
+  }
+  save();
+}
+function streakOf(db){
+  let n=0; const d=new Date();
+  if(!db.days.includes(dstr(d))) d.setDate(d.getDate()-1);
+  while(db.days.includes(dstr(d))){ n++; d.setDate(d.getDate()-1); if(n>400)break; }
+  return n;
+}
+
+/* ============================================================
+   4. 이름 치환
+   ============================================================ */
+function fill(s, kid){ kid=kid||KID; return String(s).replace(/\{name\}/g, kid.en).replace(/\{ko\}/g, kid.ko); }
+
+/* ============================================================
+   5. 화면 전환
+   ============================================================ */
+function go(name){
+  speechSynthesis.cancel(); stopMic();
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
+  document.getElementById('s-'+name).classList.add('on');
+  window.scrollTo(0,0);
+}
+
+/* ============================================================
+   6. 읽어주기 (원어민 음성)
+   ============================================================ */
+let VOICE=null;
+/* 읽어주는 속도 (1.0 = 원어민 보통 속도). 아이별로 저장 */
+function readRate(){
+  const v = DB && DB.rate;
+  return (typeof v==='number' && v>=0.4 && v<=1.2) ? v : 0.7;
+}
+function setRate(v){ DB.rate=v; save(); drawRateUI(); }
+const RATES=[0.6,0.7,0.8,1.0];
+function drawRateUI(){ const b=document.getElementById('speedBtn'); if(b) b.textContent=readRate()+'×'; }
+function cycleRate(){ const r=readRate(); const i=RATES.findIndex(x=>Math.abs(x-r)<0.01); setRate(RATES[(i+1)%RATES.length]); speak(); }
+function pickVoice(){
+  const vs = speechSynthesis.getVoices().filter(v=>/^en[-_]?/i.test(v.lang));
+  if(!vs.length) return;
+  const pref=['Google US English','Microsoft Aria','Microsoft Jenny','Microsoft Ana','Samantha','Microsoft Zira','Google UK English Female'];
+  for(const p of pref){ const f=vs.find(v=>v.name.indexOf(p)>=0); if(f){ VOICE=f; return; } }
+  VOICE = vs.find(v=>/en[-_]US/i.test(v.lang)) || vs[0];
+}
+speechSynthesis.onvoiceschanged=pickVoice; pickVoice();
+
+function say(text, rate){
+  if(!('speechSynthesis' in window)) return null;
+  const u=new SpeechSynthesisUtterance(text);
+  if(VOICE) u.voice=VOICE;
+  u.lang = VOICE? VOICE.lang : 'en-US';
+  u.rate = rate || readRate(); u.pitch=1.05;
+  speechSynthesis.speak(u);
+  return u;
+}
+function speak(slow){
+  speechSynthesis.cancel();
+  const txt=fill(curPage().t);
+  const spans=[...document.querySelectorAll('#sentence .w')];
+  spans.forEach(s=>s.classList.remove('speak'));
+  const u=new SpeechSynthesisUtterance(txt);
+  if(VOICE)u.voice=VOICE;
+  u.lang=VOICE?VOICE.lang:'en-US'; u.rate=slow? Math.max(0.4, readRate()-0.2) : readRate(); u.pitch=1.05;
+  u.onboundary=ev=>{
+    if(ev.name && ev.name!=='word') return;
+    let idx=0,c=0;
+    for(let k=0;k<spans.length;k++){
+      c += spans[k].dataset.raw.length+1;
+      idx=k; if(ev.charIndex < c) break;
+    }
+    spans.forEach(s=>s.classList.remove('speak'));
+    if(spans[idx]) spans[idx].classList.add('speak');
+  };
+  u.onend=()=>spans.forEach(s=>s.classList.remove('speak'));
+  speechSynthesis.speak(u);
+}
+
+/* ============================================================
+   7. 따라 읽기 · 채점
+   ============================================================ */
+const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+let rec=null, listening=false;
+
+function checkEnv(){
+  const w=document.getElementById('micWarn');
+  const secure = window.isSecureContext || location.hostname==='localhost' || location.hostname==='127.0.0.1';
+  w.classList.remove('on');
+  if(!SR){
+    w.innerHTML='🎤 이 브라우저는 <b>따라 읽기 채점</b>을 지원하지 않아요. <b>크롬(Chrome)</b>으로 열어주세요. (읽어주기·퀴즈는 지금도 됩니다)';
+    w.classList.add('on');
+  }else if(!secure){
+    w.innerHTML='🎤 마이크는 <b>https 주소</b>에서만 열려요. 지금 주소로는 채점이 안 됩니다. (읽어주기·퀴즈는 지금도 됩니다)';
+    w.classList.add('on');
+  }
+}
+function toggleMic(){
+  if(listening){ stopMic(); return; }
+  if(!SR){ alert('크롬(Chrome) 브라우저에서 열면 따라 읽기 채점을 쓸 수 있어요.'); return; }
+  startMic();
+}
+function startMic(){
+  speechSynthesis.cancel();
+  rec=new SR();
+  rec.lang='en-US'; rec.interimResults=true; rec.maxAlternatives=3; rec.continuous=false;
+  const btn=document.getElementById('micBtn'), heard=document.getElementById('heard'), ms=document.getElementById('micState');
+  let finalText='', alts=[];
+
+  rec.onstart=()=>{ listening=true; btn.classList.add('rec'); ms.textContent='듣는 중… 다 읽으면 한 번 더 누르세요'; heard.textContent=''; };
+  rec.onresult=ev=>{
+    let interim='';
+    for(let i=ev.resultIndex;i<ev.results.length;i++){
+      const r=ev.results[i];
+      if(r.isFinal){ finalText+=' '+r[0].transcript; for(let a=0;a<r.length;a++) alts.push(r[a].transcript); }
+      else interim+=r[0].transcript;
+    }
+    const soFar=(finalText+' '+interim).trim();
+    heard.innerHTML='<b>'+esc(soFar)+'</b>';
+    // 말한 단어부터 색이 채워진다 (가라오케)
+    const live=matchWords(fill(curPage().t), soFar).flags;
+    document.querySelectorAll('#sentence .w').forEach((s,i)=>s.classList.toggle('ok', !!live[i]));
+  };
+  rec.onerror=ev=>{
+    listening=false; btn.classList.remove('rec'); ms.textContent='마이크를 눌러 다시 읽어 보세요';
+    if(ev.error==='not-allowed') heard.textContent='마이크 사용을 허용해 주세요 (주소창 왼쪽 자물쇠 → 마이크 허용)';
+    else if(ev.error==='no-speech') heard.textContent='소리가 안 들렸어요. 한 번 더!';
+    else heard.textContent='다시 한 번 눌러주세요.';
+  };
+  rec.onend=()=>{
+    listening=false; btn.classList.remove('rec'); ms.textContent='마이크를 눌러 다시 읽어 보세요';
+    const said=(alts.length? bestAlt(alts, fill(curPage().t)) : finalText).trim();
+    if(said) grade(said);
+  };
+  try{ rec.start(); }catch(e){ heard.textContent='마이크를 시작할 수 없어요.'; }
+}
+function stopMic(){ if(rec){ try{rec.stop();}catch(e){} } }
+function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+function bestAlt(alts,target){ let b=alts[0],bs=-1; for(const a of alts){ const s=matchWords(target,a).acc; if(s>bs){bs=s;b=a;} } return b; }
+function norm(s){ return s.toLowerCase().replace(/[^a-z0-9'\s]/g,' ').replace(/\s+/g,' ').trim(); }
+function lev(a,b){
+  const m=a.length,n=b.length; if(!m)return n; if(!n)return m;
+  let prev=Array.from({length:n+1},(_,i)=>i), cur=new Array(n+1);
+  for(let i=1;i<=m;i++){ cur[0]=i;
+    for(let j=1;j<=n;j++) cur[j]=Math.min(prev[j]+1,cur[j-1]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));
+    const t=prev; prev=cur; cur=t;
+  }
+  return prev[n];
+}
+function similar(a,b,loose){
+  if(a===b) return true;
+  const d=lev(a,b), L=Math.max(a.length,b.length);
+  if(loose) return d<=Math.max(2,Math.floor(L*0.5));   // 아이 이름은 관대하게
+  if(L<=3) return d===0;
+  if(L<=5) return d<=1;
+  return d<=Math.floor(L*0.3);
+}
+function matchWords(target, said){
+  const T=norm(target).split(' ').filter(Boolean);
+  const S=norm(said).split(' ').filter(Boolean);
+  const nameWord = KID? norm(KID.en) : '';
+  const used=new Array(S.length).fill(false), flags=[];
+  let cursor=0;
+  for(const w of T){
+    const loose = (w===nameWord);
+    let hit=-1;
+    for(let j=cursor;j<S.length;j++){ if(!used[j]&&similar(w,S[j],loose)){hit=j;break;} }
+    if(hit<0) for(let j=0;j<S.length;j++){ if(!used[j]&&similar(w,S[j],loose)){hit=j;break;} }
+    if(hit<0 && loose && S.length>=T.length-1) hit=-2;  // 이름은 못 알아들어도 통과
+    if(hit>=0){ used[hit]=true; cursor=hit+1; flags.push(true); }
+    else if(hit===-2) flags.push(true);
+    else flags.push(false);
+  }
+  const ok=flags.filter(Boolean).length;
+  return {flags, acc: T.length? Math.round(ok/T.length*100):0, words:T};
+}
+
+let pageScored=false;
+function grade(said){
+  const r=matchWords(fill(curPage().t), said);
+  const spans=[...document.querySelectorAll('#sentence .w')];
+  spans.forEach((s,i)=>{ s.classList.remove('ok','no','speak'); s.classList.add(r.flags[i]?'ok':'no'); });
+
+  const box=document.getElementById('result');
+  const circle=document.getElementById('scoreCircle');
+  box.classList.add('on'); circle.textContent=r.acc+'%';
+
+  let msg,sub,color;
+  if(r.acc>=90){ msg='완벽해요! 🎉'; sub='원어민처럼 읽었어요.'; color='var(--acc-ink)'; }
+  else if(r.acc>=70){ msg='아주 좋아요! 👍'; sub='빨간 단어만 한 번 더 읽어볼까요?'; color='var(--ink)'; }
+  else{ msg='한 번 더 해볼까요? 💪'; sub='🔊 들어보기를 누르고 따라 해보세요.'; color='var(--miss)'; }
+  circle.style.color=color;
+  document.getElementById('resultTxt').innerHTML=msg+'<small>'+sub+'</small>';
+
+  if(!pageScored){
+    pageScored=true;
+    DB.sentences++; DB.accSum+=r.acc; DB.accN++;
+    r.words.forEach((w,i)=>{ if(!r.flags[i]) DB.weak[w]=(DB.weak[w]||0)+1; });
+    curScores.push(r.acc); save();
+  }
+  const nb=document.getElementById('nextBtn');
+  nb.className='navbtn go'; nb.textContent = curIdx>=curBook.pages.length-1 ? '퀴즈로 →' : '다음 문장으로 →';
+}
+
+/* ============================================================
+   8. 리더
+   ============================================================ */
+let curBook=null, curIdx=0, curScores=[], showKo=false;
+function curPage(){ return curBook.pages[curIdx]; }
+async function openBook(id){
+  curBook=allBooks().find(b=>b.id===id);
+  curIdx=0; curScores=[];
+  go('read');
+  if(curBook.wink){
+    document.getElementById('scene').innerHTML='<span>⏳</span>';
+    await loadScenes(curBook);
+  } else releaseScenes();
+  renderPage();
+}
+function exitBook(){ releaseScenes(); go('home'); drawHome(); }
+
+function renderPage(){
+  pageScored=false;
+  const p=curPage();
+  renderScene();
+
+  const words=fill(p.t).split(' ');
+  document.getElementById('sentence').innerHTML=words.map(w=>'<span class="w" data-raw="'+esc(w)+'">'+esc(w)+'</span>').join(' ');
+  document.getElementById('koText').textContent=fill(p.k);
+  renderKo();
+  document.getElementById('heard').textContent='';
+  document.getElementById('result').classList.remove('on');
+  document.getElementById('micState').textContent='마이크를 누르고 따라 읽어 보세요';
+  drawRateUI();
+  const nb=document.getElementById('nextBtn');
+  const last = curIdx>=curBook.pages.length-1;
+  nb.className='navbtn next';
+  nb.textContent = last ? '다 읽었어요 ✓' : '다음 문장으로';
+  const pb=document.getElementById('prevBtn');
+  pb.style.visibility = curIdx===0 ? 'hidden' : 'visible';
+  document.getElementById('pgNum').textContent=(curIdx+1)+'/'+curBook.pages.length;
+  const segs=document.getElementById('segs'), n=curBook.pages.length;
+  segs.style.gap = n>12 ? '3px' : '6px';
+  segs.innerHTML = curBook.pages.map((_,i)=>'<i class="'+(i<curIdx?'done':(i===curIdx?'now':''))+'"></i>').join('');
+  setTimeout(()=>speak(), 400);
+}
+function renderKo(){
+  document.getElementById('koText').classList.toggle('hide', !showKo);
+  document.getElementById('koBtn').textContent = showKo? '뜻 숨기기':'뜻 보기';
+}
+function toggleKo(){ showKo=!showKo; renderKo(); }
+function nextPage(){
+  speechSynthesis.cancel(); stopMic();
+  if(curIdx<curBook.pages.length-1){ curIdx++; renderPage(); } else startQuiz();
+}
+function prevPage(){
+  speechSynthesis.cancel(); stopMic();
+  if(curIdx>0){ curIdx--; renderPage(); }
+}
+/* 태블릿에서 좌우로 밀어 넘기기 */
+(function(){
+  let x0=null, y0=null;
+  const rd=document.getElementById('s-read');
+  rd.addEventListener('touchstart', e=>{ x0=e.touches[0].clientX; y0=e.touches[0].clientY; }, {passive:true});
+  rd.addEventListener('touchend', e=>{
+    if(x0===null) return;
+    const dx=e.changedTouches[0].clientX-x0, dy=e.changedTouches[0].clientY-y0;
+    x0=null;
+    if(Math.abs(dx)<60 || Math.abs(dy)>Math.abs(dx)) return;
+    if(dx<0) nextPage(); else prevPage();
+  }, {passive:true});
+  document.addEventListener('keydown', e=>{
+    if(!document.getElementById('s-read').classList.contains('on')) return;
+    if(e.key==='ArrowRight') nextPage();
+    if(e.key==='ArrowLeft') prevPage();
+  });
+})();
+
+/* ============================================================
+   9. 퀴즈
+   ============================================================ */
+let qIdx=0,qRight=0,oxList=null;
+
+/* 뜻이 반대가 되는 낱말 — X 문제를 만들 때 바꿔 끼운다 */
+const SWAP={
+  white:['black','red'], black:['white','yellow'], red:['blue','green'], blue:['red','pink'],
+  green:['orange','purple'], yellow:['brown','blue'], pink:['gray','blue'], brown:['pink','green'],
+  big:['small','tiny'], small:['big','huge'], tall:['short'], short:['tall'], long:['short'],
+  hot:['cold'], cold:['hot','warm'], warm:['cold'], new:['old'], old:['new'], fast:['slow'], slow:['fast'],
+  happy:['sad','angry'], sad:['happy'], angry:['happy'], hungry:['full'], sleepy:['awake'],
+  cat:['dog','pig'], dog:['cat','duck'], pig:['cow','cat'], cow:['pig','sheep'], bird:['fish','frog'],
+  fish:['bird','cat'], rabbit:['turtle','bear'], bear:['lion','rabbit'], lion:['bear','tiger'],
+  monkey:['giraffe','rabbit'], giraffe:['monkey','elephant'], elephant:['mouse','giraffe'], mouse:['elephant'],
+  mom:['dad'], mommy:['daddy'], dad:['mom'], daddy:['mommy'], sister:['brother'], brother:['sister'],
+  morning:['evening','night'], afternoon:['morning','night'], evening:['morning'], night:['morning'],
+  today:['tomorrow'], tomorrow:['yesterday'], yesterday:['tomorrow'],
+  run:['swim','sleep'], jump:['sit','sleep'], swim:['run','fly'], fly:['swim','walk'], walk:['run','fly'],
+  sleep:['run','eat'], eat:['sleep','drink'], drink:['eat'], sing:['dance'], dance:['sing'],
+  cry:['laugh','smile'], laugh:['cry'], smile:['cry'], open:['close'], close:['open'],
+  up:['down'], down:['up'], in:['out'], out:['in'], on:['under'], under:['on'], over:['under'],
+  yes:['no'], no:['yes'], one:['two','three'], two:['three','one'], three:['four','two'],
+  four:['five','three'], five:['six','four'], six:['seven'], seven:['eight'], eight:['nine'], nine:['ten'],
+  ten:['two'], apple:['banana'], banana:['apple'], milk:['juice','water'], water:['milk'],
+  school:['home','park'], home:['school'], park:['school','zoo'], zoo:['park'],
+  sun:['moon'], moon:['sun'], rain:['snow'], snow:['rain'], hello:['goodbye'], goodbye:['hello']
+};
+function swapWord(sentence){
+  const parts = sentence.split(/(\b)/);
+  const idxs = [];
+  parts.forEach((w,i)=>{ if(SWAP[w.toLowerCase()]) idxs.push(i); });
+  if(!idxs.length) return null;
+  const i = idxs[Math.floor(Math.random()*idxs.length)];
+  const orig = parts[i];
+  const cands = SWAP[orig.toLowerCase()];
+  let rep = cands[Math.floor(Math.random()*cands.length)];
+  if(orig[0] === orig[0].toUpperCase()) rep = rep[0].toUpperCase()+rep.slice(1);
+  parts[i] = rep;
+  return parts.join('');
+}
+/* 부호·대소문자를 무시하고 같은 문장인지 */
+function sameSentence(a,b){
+  const n=x=>String(x).toLowerCase().replace(/[^a-z0-9 ]/g,' ').replace(/\s+/g,' ').trim();
+  return n(a)===n(b);
+}
+function existsInBook(book, text){
+  return book.pages.some(p=>sameSentence(p.t, text));
+}
+/* 같은 레벨 다른 책에서 문장 하나 빌려온다 (문법이 온전한 문장) */
+function foreignSentence(book){
+  const others=allBooks().filter(b=>b.id!==book.id && b.pages && b.pages.length);
+  const same=others.filter(b=>b.level===book.level);
+  const pool=same.length? same : others;
+  if(!pool.length) return null;
+  for(let k=0;k<25;k++){
+    const b=pool[Math.floor(Math.random()*pool.length)];
+    const pg=b.pages[Math.floor(Math.random()*b.pages.length)];
+    if(!pg || !pg.t) continue;
+    const w=pg.t.split(' ').length;
+    if(w>12) continue;
+    if(existsInBook(book, pg.t)) continue;
+    return pg.t;
+  }
+  return null;
+}
+/* 그 책의 문장으로 O/X 문제를 만든다 */
+function makeOX(book){
+  const pages=book.pages.filter(p=>p.t && p.t.trim().length>1);
+  if(pages.length<2) return [];
+  const pool=pages.slice();
+  for(let i=pool.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pool[i],pool[j]]=[pool[j],pool[i]]; }
+  const want=Math.min(3, pool.length);
+
+  // O와 X를 섞되 한쪽으로 쏠리지 않게 (찍어서 맞히지 못하도록)
+  const nX = want<2 ? 0 : 1 + Math.floor(Math.random()*(want-1));
+  const pattern = Array.from({length:want}, (_,i)=> i>=nX);
+  for(let i=pattern.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [pattern[i],pattern[j]]=[pattern[j],pattern[i]]; }
+
+  const qs=[];
+  const used=[];
+  const isUsed=t=>used.some(u=>sameSentence(u,t));
+
+  for(let i=0;i<pool.length && qs.length<want;i++){
+    const pg=pool[i];
+    if(isUsed(pg.t)) continue;                    // 같은 문장 두 번 내지 않기
+    const wantTrue = pattern[qs.length];
+
+    if(wantTrue){
+      qs.push({text:pg.t, answer:true, s:pg.s, ko:pg.k});
+      used.push(pg.t);
+      continue;
+    }
+
+    // ① 낱말 바꾸기 — 그 책에 실제로 있는 문장이 되면 버린다
+    let fake=null;
+    for(let k=0;k<10 && !fake;k++){
+      const cand=swapWord(pg.t);
+      if(cand && !sameSentence(cand,pg.t) && !existsInBook(book,cand) && !isUsed(cand)) fake=cand;
+    }
+    // ② 다른 책의 정상 문장 빌려오기
+    if(!fake){
+      for(let k=0;k<3 && !fake;k++){
+        const cand=foreignSentence(book);
+        if(cand && !isUsed(cand)) fake=cand;
+      }
+    }
+    if(fake){ qs.push({text:fake, answer:false, s:pg.s, ko:''}); used.push(fake); }
+    else     { qs.push({text:pg.t, answer:true,  s:pg.s, ko:pg.k}); used.push(pg.t); }
+  }
+  return qs;
+}
+
+function startQuiz(){
+  qIdx=0; qRight=0; oxList=null;
+  if(curBook.quiz && curBook.quiz.length){ go('quiz'); renderQuiz(); return; }
+  oxList = makeOX(curBook);
+  if(!oxList.length){ finishBook(); return; }
+  go('quiz'); renderOX();
+}
+
+function renderOX(){
+  const q=oxList[qIdx];
+  document.getElementById('qLabel').textContent='이 책에 나온 문장일까요?';
+  document.getElementById('qText').textContent=q.text;
+  document.getElementById('qNum').textContent=(qIdx+1)+'/'+oxList.length;
+  document.getElementById('qBar').style.width=(qIdx/oxList.length*100)+'%';
+
+  const sc=document.getElementById('qScene');
+  sc.className='qscene on';
+  sc.innerHTML='<div class="qbook"><div class="qbcover" id="qbCover">'+curBook.emoji+'</div>'+
+    '<div class="qbt"><b class="en">'+esc(fill(curBook.title))+'</b><span>이 책에서 나온 문장인지 맞혀보세요</span></div></div>';
+  if(curBook.cover){
+    idbGet('imgs',curBook.cover).then(bl=>{
+      if(!bl) return;
+      const el=document.getElementById('qbCover'); if(!el) return;
+      el.style.backgroundImage='url('+URL.createObjectURL(bl)+')';
+      el.style.backgroundSize='contain'; el.style.backgroundPosition='center';
+      el.style.backgroundRepeat='no-repeat'; el.textContent='';
+    }).catch(()=>{});
+  }
+
+  const box=document.getElementById('qOpts');
+  box.innerHTML='<div class="oxrow">'+
+    '<button class="ox o" data-v="1">⭕<span class="lb">맞아요</span></button>'+
+    '<button class="ox x" data-v="0">❌<span class="lb">아니에요</span></button>'+
+    '</div><p class="qhint" id="qHint">문장을 듣고 골라보세요</p>';
+  box.querySelectorAll('.ox').forEach(b=>{
+    b.onclick=()=>answerOX(b.dataset.v==='1', b);
+  });
+  setTimeout(()=>say(q.text, readRate()), 320);
+}
+function answerOX(pick, btn){
+  const q=oxList[qIdx];
+  const ok = (pick===q.answer);
+  document.querySelectorAll('.ox').forEach(b=>b.onclick=null);
+  btn.classList.add(ok?'pickok':'pickno');
+  if(ok) qRight++;
+  const hint=document.getElementById('qHint');
+  hint.innerHTML = ok
+    ? '<b style="color:var(--acc-ink)">잘했어요! 🎉</b>'
+    : '<b style="color:var(--miss)">아쉬워요.</b> 정답은 '+(q.answer?'⭕':'❌')+' 예요.';
+  setTimeout(()=>{
+    if(qIdx<oxList.length-1){ qIdx++; renderOX(); } else finishBook();
+  }, 1500);
+}
+function renderQuiz(){
+  const q=curBook.quiz[qIdx];
+  document.getElementById('qLabel').textContent='QUIZ';
+  document.getElementById('qScene').className='qscene';
+  document.getElementById('qScene').innerHTML='';
+  document.getElementById('qText').textContent=fill(q.q);
+  document.getElementById('qNum').textContent=(qIdx+1)+'/'+curBook.quiz.length;
+  document.getElementById('qBar').style.width=(qIdx/curBook.quiz.length*100)+'%';
+  const box=document.getElementById('qOpts'); box.innerHTML='';
+  q.o.forEach((o,i)=>{
+    const b=document.createElement('button');
+    b.className='opt'; b.textContent=fill(o);
+    b.onclick=()=>answerQuiz(i,b);
+    box.appendChild(b);
+  });
+  setTimeout(()=>say(fill(q.q),0.9),320);
+}
+function answerQuiz(i,btn){
+  const q=curBook.quiz[qIdx];
+  const btns=[...document.querySelectorAll('#qOpts .opt')];
+  btns.forEach(b=>b.onclick=null);
+  if(i===q.a){ btn.classList.add('ok'); qRight++; } else { btn.classList.add('no'); btns[q.a].classList.add('ok'); }
+  setTimeout(()=>{ if(qIdx<curBook.quiz.length-1){ qIdx++; renderQuiz(); } else finishBook(); },1100);
+}
+
+/* ============================================================
+   10. 완료 · 보상
+   ============================================================ */
+function finishBook(){
+  const avg=curScores.length? Math.round(curScores.reduce((a,b)=>a+b,0)/curScores.length):0;
+  const qTotal = (curBook.quiz && curBook.quiz.length) ? curBook.quiz.length : (oxList? oxList.length : 0);
+  const qr = qTotal ? qRight/qTotal : 1;
+  let st=1;
+  if(curScores.length===0) st = qr>=1?2:1;
+  else if(avg>=88&&qr>=1) st=3;
+  else if(avg>=70&&qr>=0.5) st=2;
+
+  const prev=DB.books[curBook.id]||{stars:0,best:0,count:0};
+  DB.books[curBook.id]={stars:Math.max(prev.stars,st), best:Math.max(prev.best,avg), count:prev.count+1, last:today(), title:fill(curBook.title)};
+  DB.stars=Object.values(DB.books).reduce((a,b)=>a+b.stars,0);
+  markToday(); save();
+
+  go('reward');
+  document.getElementById('trophy').textContent = st===3?'🏆':(st===2?'🎖️':'🌱');
+  document.getElementById('rwTitle').textContent = (st===3? KID.ko+', 최고예요!' : (st===2? '잘했어요, '+KID.ko+'!' : '끝까지 읽었어요!'));
+  document.getElementById('rwSub').innerHTML=fill(curBook.title)+' 완독<br>'+(qTotal? '퀴즈 '+qRight+'/'+qTotal:'')+(curScores.length? ' · 읽기 정확도 '+avg+'%':'');
+  document.getElementById('rwStars').innerHTML=Array.from({length:3},(_,i)=>'<span>'+(i<st?'⭐':'☆')+'</span>').join('');
+
+  if(gotCoupon){
+    document.getElementById('trophy').textContent='🎟️';
+    document.getElementById('rwTitle').textContent='다이소 이용권 획득! 🎉';
+    document.getElementById('rwSub').innerHTML='도장 10개를 모았어요!<br><b>다이소 이용권 1장</b>을 받았습니다.';
+  }else if(gotStamp){
+    document.getElementById('trophy').textContent='🏅';
+    document.getElementById('rwTitle').textContent='일주일 개근! 도장 1개!';
+    document.getElementById('rwSub').innerHTML='7일 동안 하루도 안 빠졌어요.<br>도장 '+(DB.stamps||0)+'/10개 · 10개 모으면 다이소 이용권!';
+  }
+}
+
+/* ============================================================
+   11. 프로필 선택 화면
+   ============================================================ */
+/* --- 아이 사진: 이 기기(localStorage)에만 저장, 인터넷 전송 없음 --- */
+const photoKey = id => 'readalong.photo.' + id;
+function getPhoto(id){ try{ return localStorage.getItem(photoKey(id)) || ''; }catch(e){ return ''; } }
+function avStyle(k){
+  const ph=getPhoto(k.id);
+  return ph ? 'background-image:url('+ph+')' : 'background:'+k.bg;
+}
+function avClass(k){ return getPhoto(k.id) ? ' photo' : ''; }
+
+function askPhoto(kidId){
+  const inp=document.getElementById('photoInput');
+  inp.value='';
+  inp.onchange=()=>{
+    const f=inp.files && inp.files[0];
+    if(!f) return;
+    const img=new Image();
+    const fr=new FileReader();
+    fr.onload=()=>{ img.onload=()=>savePhoto(kidId,img); img.src=fr.result; };
+    fr.readAsDataURL(f);
+  };
+  inp.click();
+}
+function savePhoto(kidId,img){
+  const S=320, c=document.createElement('canvas');
+  c.width=S; c.height=S;
+  const ctx=c.getContext('2d');
+  const side=Math.min(img.width,img.height);
+  ctx.drawImage(img,(img.width-side)/2,(img.height-side)/2,side,side,0,0,S,S);
+  let data=c.toDataURL('image/jpeg',0.82);
+  try{ localStorage.setItem(photoKey(kidId), data); }
+  catch(e){ alert('사진을 저장할 공간이 부족해요. 더 작은 사진으로 시도해 주세요.'); return; }
+  drawPick();
+  if(KID && KID.id===kidId) drawHome();
+}
+function clearPhoto(kidId){
+  try{ localStorage.removeItem(photoKey(kidId)); }catch(e){}
+  drawPick(); if(KID && KID.id===kidId) drawHome();
+}
+
+function drawPick(){
+  const g=document.getElementById('pgrid'); g.innerHTML='';
+  KIDS.forEach(k=>{
+    const db=loadFor(k.id);
+    const card=document.createElement('div');
+    card.className='pcard';
+    const main=document.createElement('button');
+    main.style.cssText='display:block;width:100%;text-align:center';
+    main.onclick=()=>selectKid(k.id);
+    main.innerHTML='<div class="pav'+avClass(k)+'" style="'+avStyle(k)+'">'+k.emoji+'</div>'+
+      '<b>'+esc(k.ko)+'</b><span>'+esc(k.grade||'')+'</span>'+
+      '<div class="st">⭐ '+db.stars+' · 📚 '+Object.keys(db.books).length+'권</div>';
+    const cam=document.createElement('button');
+    cam.className='pcam'; cam.textContent='📷'; cam.title=k.ko+' 사진 넣기';
+    cam.onclick=ev=>{ ev.stopPropagation(); askPhoto(k.id); };
+    const ed=document.createElement('button');
+    ed.className='pedit'; ed.textContent='✎'; ed.title=k.ko+' 고치기';
+    ed.onclick=ev=>{ ev.stopPropagation(); openProfile(k.id); };
+    card.appendChild(main); card.appendChild(cam); card.appendChild(ed);
+    g.appendChild(card);
+  });
+  const add=document.createElement('button');
+  add.className='pcard padd'; add.textContent='+ 프로필 추가';
+  add.onclick=()=>openProfile(null);
+  g.appendChild(add);
+}
+
+let editId=null, pfEmo=EMOJIS[0];
+function openProfile(id){
+  editId=id||null;
+  const p=KIDS.find(k=>k.id===id) || {ko:'',en:'',grade:'',kind:'kid2',emoji:EMOJIS[KIDS.length%EMOJIS.length]};
+  document.getElementById('pfTitle').textContent = id? p.ko+' 고치기' : '프로필 추가';
+  document.getElementById('pfKo').value=p.ko;
+  document.getElementById('pfEn').value=p.en;
+  document.getElementById('pfGrade').value=p.grade||'';
+  document.getElementById('pfLevel').value=p.kind||'kid2';
+  document.getElementById('pfDel').hidden=!id;
+  pfEmo=p.emoji; drawEmojis();
+  go('prof');
+}
+function drawEmojis(){
+  const box=document.getElementById('pfEmojis'); box.innerHTML='';
+  EMOJIS.forEach(e=>{
+    const b=document.createElement('button'); b.type='button'; b.textContent=e;
+    b.className = e===pfEmo? 'on':''; b.onclick=()=>{ pfEmo=e; drawEmojis(); };
+    box.appendChild(b);
+  });
+}
+function saveProfile(){
+  const ko=document.getElementById('pfKo').value.trim();
+  if(!ko){ alert('이름을 적어 주세요.'); return; }
+  const en=document.getElementById('pfEn').value.trim() || 'Friend';
+  const data={ko, en, grade:document.getElementById('pfGrade').value.trim(),
+    kind:document.getElementById('pfLevel').value, emoji:pfEmo};
+  if(editId) KIDS=KIDS.map(k=>k.id===editId? withLevels(Object.assign({}, k, data)) : k);
+  else KIDS.push(withLevels(Object.assign({id:'p'+Date.now()}, data)));
+  saveProfiles(); go('pick'); drawPick();
+}
+function delProfile(){
+  const k=KIDS.find(x=>x.id===editId); if(!k) return;
+  if(!confirm(k.ko+' 프로필과 기록을 이 기기에서 지울까요? 되돌릴 수 없습니다.')) return;
+  KIDS=KIDS.filter(x=>x.id!==editId);
+  try{ localStorage.removeItem(keyFor(editId)); localStorage.removeItem(photoKey(editId)); }catch(e){}
+  saveProfiles(); go('pick'); drawPick();
+}
+function selectKid(id){
+  KID=KIDS.find(k=>k.id===id);
+  DB=loadFor(id);
+  try{ localStorage.setItem('readalong.lastKid', id); }catch(e){}
+  go('home'); drawHome();
+  // 태블릿에서 음성 엔진을 깨우기 위한 무음 호출
+  try{ const u=new SpeechSynthesisUtterance(' '); u.volume=0; speechSynthesis.speak(u); }catch(e){}
+}
+
+/* ============================================================
+   11-B. 우리 집 책 (직접 추가) + 페이지 사진
+   ============================================================ */
+const MY_KEY='readalong.mybooks';
+function myBooks(){
+  try{ const r=JSON.parse(localStorage.getItem(MY_KEY)); return Array.isArray(r)? r:[]; }catch(e){ return []; }
+}
+function setMyBooks(list){ try{ localStorage.setItem(MY_KEY, JSON.stringify(list)); }catch(e){ alert('저장 공간이 부족해요.'); } }
+function allBooks(){ return BOOKS.concat(WINK).concat(myBooks()); }
+
+function openAdd(){ go('add'); document.getElementById('adTitle').value=''; document.getElementById('adPages').value=''; drawMyList(); }
+function saveMyBook(){
+  const title=document.getElementById('adTitle').value.trim();
+  const emoji=document.getElementById('adEmoji').value.trim()||'📚';
+  const level=+document.getElementById('adLevel').value;
+  const raw=document.getElementById('adPages').value.split('\n').map(x=>x.trim()).filter(Boolean);
+  if(!title){ alert('책 제목을 적어주세요.'); return; }
+  if(!raw.length){ alert('문장을 한 줄에 하나씩 적어주세요.'); return; }
+  const pages=raw.map(line=>{
+    const parts=line.split('|');
+    return {t:parts[0].trim(), k:(parts[1]||'').trim(), e:emoji};
+  });
+  const list=myBooks();
+  list.push({id:'my_'+Date.now(), mine:true, level:level, title:title, emoji:emoji,
+    bg:'linear-gradient(135deg,#E9F3E4,#CFE6C6)', pages:pages, quiz:[]});
+  setMyBooks(list);
+  alert('"'+title+'" 책을 책장에 넣었어요!');
+  go('home'); drawHome();
+}
+function drawMyList(){
+  const box=document.getElementById('myList');
+  const list=myBooks();
+  const w = WINK.length
+    ? '<div class="histrow"><span class="nm">📗 윙크 책 '+WINK.length+'권 (그림 포함)</span>'+
+      '<button onclick="clearWink()" style="color:var(--miss); font-weight:800; font-size:12px">지우기</button></div>'
+    : '';
+  if(!list.length){ box.innerHTML = w || '<p class="emptynote">아직 없어요.</p>'; return; }
+  box.innerHTML = w;
+  box.innerHTML += list.map(b=>
+    '<div class="histrow"><span class="nm">'+b.emoji+' '+esc(b.title)+'</span>'+
+    '<span style="color:var(--ink-3)">'+b.pages.length+' 문장</span>'+
+    '<button onclick="delMyBook(&quot;'+b.id+'&quot;)" style="color:var(--miss); font-weight:800; font-size:12px">삭제</button></div>').join('');
+}
+function delMyBook(id){
+  const b=myBooks().find(x=>x.id===id);
+  if(!b || !confirm('"'+b.title+'" 책을 지울까요? 넣은 사진도 함께 지워집니다.')) return;
+  setMyBooks(myBooks().filter(x=>x.id!==id));
+  for(let i=0;i<b.pages.length;i++){ try{ localStorage.removeItem(imgKey(id,i)); }catch(e){} }
+  drawMyList(); drawHome();
+}
+
+/* --- 페이지 사진: 이 기기에만 저장 --- */
+const imgKey=(bookId,idx)=>'readalong.pageimg.'+bookId+'.'+idx;
+function getPageImage(bookId,idx){ try{ return localStorage.getItem(imgKey(bookId,idx))||''; }catch(e){ return ''; } }
+function askPageImage(){
+  const inp=document.getElementById('pageInput');
+  inp.value='';
+  inp.onchange=()=>{
+    const f=inp.files&&inp.files[0]; if(!f) return;
+    const img=new Image(), fr=new FileReader();
+    fr.onload=()=>{ img.onload=()=>savePageImage(img); img.src=fr.result; };
+    fr.readAsDataURL(f);
+  };
+  inp.click();
+}
+function savePageImage(img){
+  const W=720, ratio=img.height/img.width;
+  const c=document.createElement('canvas');
+  c.width=W; c.height=Math.round(W*ratio);
+  c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+  let data=c.toDataURL('image/jpeg',0.75);
+  try{ localStorage.setItem(imgKey(curBook.id,curIdx), data); }
+  catch(e){ alert('사진 저장 공간이 부족해요. 부모 리포트에서 안 쓰는 책을 지워주세요.'); return; }
+  renderScene();
+}
+function clearPageImage(){
+  if(!confirm('이 페이지 사진을 지울까요?')) return;
+  try{ localStorage.removeItem(imgKey(curBook.id,curIdx)); }catch(e){}
+  renderScene();
+}
+function renderScene(){
+  const p=curPage(), sc=document.getElementById('scene');
+  const photo=getPageImage(curBook.id,curIdx);
+  const built=(curBook.wink && p.s!=null) ? (sceneUrls[p.s]||'') : (p.img||'');
+  sc.style.background='var(--surface)';
+  const src = photo || built;
+  sc.classList.toggle('hasimg', !!src);
+  sc.innerHTML = src ? '<img src="'+src+'" alt="">' : '<span>'+p.e+'</span>';
+  if(!curBook.wink){
+    const btn=document.createElement('button');
+    btn.className='photoBtn';
+    btn.textContent = photo? '사진 지우기' : '📷 사진 넣기';
+    btn.onclick = photo? clearPageImage : askPageImage;
+    sc.appendChild(btn);
+  }
+}
+
+/* ============================================================
+   11-B2. 윙크 책 (IndexedDB · 이 기기에만 저장)
+   ============================================================ */
+const IDB_NAME='readalong', IDB_VER=1;
+let WINK=[];              // 불러온 윙크 책 목록
+let sceneUrls=[];         // 현재 책 그림 URL
+
+function idb(){
+  return new Promise((res,rej)=>{
+    const rq=indexedDB.open(IDB_NAME,IDB_VER);
+    rq.onupgradeneeded=()=>{
+      const db=rq.result;
+      if(!db.objectStoreNames.contains('imgs')) db.createObjectStore('imgs');
+      if(!db.objectStoreNames.contains('meta')) db.createObjectStore('meta');
+    };
+    rq.onsuccess=()=>res(rq.result);
+    rq.onerror=()=>rej(rq.error);
+  });
+}
+function idbPut(store,key,val){
+  return idb().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(store,'readwrite');
+    tx.objectStore(store).put(val,key);
+    tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error);
+  }));
+}
+function idbGet(store,key){
+  return idb().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(store,'readonly');
+    const rq=tx.objectStore(store).get(key);
+    rq.onsuccess=()=>res(rq.result); rq.onerror=()=>rej(rq.error);
+  }));
+}
+function idbClear(store){
+  return idb().then(db=>new Promise((res,rej)=>{
+    const tx=db.transaction(store,'readwrite');
+    tx.objectStore(store).clear();
+    tx.oncomplete=()=>res(); tx.onerror=()=>rej(tx.error);
+  }));
+}
+
+async function loadWink(){
+  try{ WINK = (await idbGet('meta','winkbooks')) || []; }catch(e){ WINK=[]; }
+}
+
+async function importWink(file){
+  const st=document.getElementById('winkStatus');
+  if(typeof JSZip==='undefined'){ st.textContent='압축 해제 도구를 불러오지 못했어요. 인터넷 연결을 확인해 주세요.'; return; }
+  st.textContent='파일을 여는 중…';
+  try{
+    const zip=await JSZip.loadAsync(file);
+    const metaFile=zip.file('books.json');
+    if(!metaFile){ st.textContent='books.json 이 없는 파일이에요. wink-data.zip 을 골라주세요.'; return; }
+    const books=JSON.parse(await metaFile.async('string'));
+
+    const names=Object.keys(zip.files).filter(n=>n.startsWith('img/') && !zip.files[n].dir);
+    let done=0;
+    for(const n of names){
+      const blob=await zip.files[n].async('blob');
+      await idbPut('imgs', n, blob);
+      done++;
+      if(done%20===0 || done===names.length){
+        st.textContent='그림 저장 중… '+done+'/'+names.length+'장';
+        await new Promise(r=>setTimeout(r,0));
+      }
+    }
+    const list=books.map(b=>({
+      id:b.id, mine:true, wink:true, level:b.level,
+      title:b.title, emoji:'📗', code:b.code,
+      bg:'linear-gradient(135deg,#E3F0FF,#C3DEFF)',
+      cover:b.cover||'', scenes:b.scenes, pages:b.pages.map(p=>({t:p.t,k:p.k,s:p.s,e:'📖'})), quiz:[]
+    }));
+    // 이미 불러온 책에 더한다 (단계별로 나눠 넣어도 쌓이도록)
+    const map=new Map((WINK||[]).map(b=>[b.id,b]));
+    list.forEach(b=>map.set(b.id,b));
+    const merged=[...map.values()].sort((a,b)=>(a.level-b.level)||String(a.code||'').localeCompare(String(b.code||'')));
+    await idbPut('meta','winkbooks',merged);
+    WINK=merged;
+    st.textContent='✅ '+list.length+'권 추가! (지금까지 '+merged.length+'권)';
+    drawMyList();
+  }catch(e){
+    st.textContent='불러오지 못했어요: '+e.message;
+  }
+}
+async function clearWink(){
+  if(!confirm('불러온 윙크 책 '+WINK.length+'권을 이 기기에서 지울까요?')) return;
+  await idbClear('imgs'); await idbPut('meta','winkbooks',[]);
+  WINK=[]; drawMyList(); drawHome();
+  document.getElementById('winkStatus').textContent='지웠습니다.';
+}
+
+const coverCache=new Map();
+async function fillCovers(){
+  for(const el of [...document.querySelectorAll('.cover[data-cover], .hcover[data-cover], .nc[data-cover]')]){
+    const fn=el.dataset.cover;
+    let url=coverCache.get(fn);
+    if(url===undefined){
+      try{ const blob=await idbGet('imgs',fn); url = blob? URL.createObjectURL(blob) : ''; }
+      catch(e){ url=''; }
+      coverCache.set(fn,url);
+    }
+    if(url){
+      el.style.backgroundImage='url('+url+')';
+      el.style.backgroundSize='contain';      // 표지는 잘리지 않게 전체를 보여준다
+      el.style.backgroundPosition='center';
+      el.style.backgroundRepeat='no-repeat';
+      el.classList.add('hasimg');
+    }
+  }
+}
+
+function releaseScenes(){ sceneUrls.forEach(u=>{ try{ URL.revokeObjectURL(u); }catch(e){} }); sceneUrls=[]; }
+async function loadScenes(book){
+  releaseScenes();
+  const urls=[];
+  for(const fn of (book.scenes||[])){
+    try{
+      const blob=await idbGet('imgs',fn);
+      urls.push(blob? URL.createObjectURL(blob) : '');
+    }catch(e){ urls.push(''); }
+  }
+  sceneUrls=urls;
+  return urls;
+}
+
+/* ============================================================
+   11-C. 도장판 · 다이소 이용권
+   ============================================================ */
+function drawStamps(){
+  const g=document.getElementById('stampGrid'); g.innerHTML='';
+  const n=DB.stamps||0;
+  for(let i=0;i<10;i++){
+    const d=document.createElement('div');
+    d.className='stamp'+(i<n?' on':'');
+    d.textContent = i<n? '⭐' : '';
+    g.appendChild(d);
+  }
+  const wp=DB.weekProgress||0;
+  document.getElementById('scWeek').textContent='이번 주 '+wp+'/7일';
+  const scn=document.getElementById('scNow'); if(scn) scn.textContent=n;
+  document.getElementById('wkBar').style.width=(wp/7*100)+'%';
+
+  const cb=document.getElementById('couponBox');
+  const cps=(DB.coupons||[]);
+  const unused=cps.filter(c=>!c.used).length;
+  cb.innerHTML = !cps.length ? '' :
+    '<div class="coupon"><div style="font-size:26px">🎟️</div>'+
+    '<div class="cn">다이소 이용권 '+unused+'장<small>지금까지 받은 도장 '+(DB.totalStamps||0)+'개 · 이용권 '+cps.length+'장</small></div>'+
+    (unused? '<button onclick="useCoupon()">사용함</button>':'') + '</div>';
+}
+function useCoupon(){
+  const c=(DB.coupons||[]).find(x=>!x.used);
+  if(!c) return;
+  if(!confirm('다이소 이용권 1장을 사용 처리할까요?')) return;
+  c.used=true; c.usedAt=today(); save(); drawStamps();
+}
+
+/* ============================================================
+   11-D. 오늘 읽을 책 — 하루 목표 문장 수 안에서 채운다
+   ============================================================ */
+const DAY_SENTENCES = 45;     // 하루 목표 문장 수 (약 10분 분량)
+const DAY_MAX_BOOKS = 3;
+
+function orderedBooks(){
+  return allBooks().slice().sort((a,b)=>
+    (a.level-b.level) || String(a.code||a.id).localeCompare(String(b.code||b.id)));
+}
+function readToday(id){
+  const r=DB.books[id];
+  return !!(r && r.last===today());
+}
+function pickToday(){
+  const t=today();
+  const all=orderedBooks();
+  const byId=id=>all.find(b=>b.id===id);
+
+  if(DB.todayPick && DB.todayPick.date===t){
+    const got=DB.todayPick.ids.map(byId).filter(Boolean);
+    if(got.length) return got;
+  }
+  // 아직 안 읽은 책을 레벨 낮은 순서대로, 하루 목표 문장 수까지
+  let pool=all.filter(b=>!DB.books[b.id]);
+  if(!pool.length) pool=all;
+  const pick=[]; let sum=0;
+  for(const b of pool){
+    const n=b.pages.length;
+    if(pick.length && (sum+n > DAY_SENTENCES || pick.length>=DAY_MAX_BOOKS)) break;
+    pick.push(b); sum+=n;
+    if(pick.length>=DAY_MAX_BOOKS) break;
+  }
+  DB.todayPick={date:t, ids:pick.map(b=>b.id)};
+  save();
+  return pick;
+}
+function coverAttr(b){ return b.cover? ' data-cover="'+b.cover+'"' : ''; }
+function drawToday(){
+  const list=pickToday();
+  const done=list.filter(b=>readToday(b.id)).length;
+  const allDone = list.length>0 && done>=list.length;
+  const first = list.find(b=>!readToday(b.id)) || list[0];
+  const hero=document.getElementById('todayHero'), next=document.getElementById('todayNext');
+  hero.innerHTML=''; next.innerHTML='';
+  if(first){
+    const el=document.createElement('button');
+    el.className='hero'+(allDone?' done':'');
+    el.onclick=()=>openBook(first.id);
+    el.innerHTML='<div class="hcover"'+coverAttr(first)+'>'+first.emoji+'</div>'+
+      '<h3 class="en">'+esc(fill(first.title))+'</h3>'+
+      '<div class="hm">Lv.'+first.level+' · '+first.pages.length+'문장</div>'+
+      '<span class="hbtn">'+(allDone?'한 번 더 읽기':'따라 읽기')+'</span>';
+    hero.appendChild(el);
+  }
+  list.filter(b=>b!==first).forEach(b=>{
+    const fin=readToday(b.id);
+    const el=document.createElement('button');
+    el.className='nbook'+(fin?' done':'');
+    el.onclick=()=>openBook(b.id);
+    el.innerHTML='<div class="nc"'+coverAttr(b)+'>'+b.emoji+'</div>'+
+      '<div><b class="en">'+esc(fill(b.title))+'</b><span>'+(fin?'읽었어요 ✓':'다음 책')+'</span></div>';
+    next.appendChild(el);
+  });
+  next.hidden = list.length<2;
+  return {done, total:list.length};
+}
+
+/* ============================================================
+   12. 홈
+   ============================================================ */
+let curLevel='rec';
+function booksFor(){
+  const A=allBooks();
+  if(curLevel==='rec') return A.filter(b=>KID.levels.includes(b.level)||b.mine);
+  if(curLevel==='mine') return A.filter(b=>b.mine);
+  if(curLevel==='all') return A;
+  return A.filter(b=>b.level===curLevel);
+}
+function soon(name){
+  const t=document.getElementById('toast');
+  t.textContent=name+'은(는) 다음 단계에서 열려요'; t.hidden=false;
+  clearTimeout(soon.t); soon.t=setTimeout(()=>t.hidden=true, 1800);
+}
+function drawHome(){
+  const av=document.getElementById('hAv');
+  const ph=getPhoto(KID.id);
+  av.textContent=KID.emoji;
+  av.className='av'+(ph?' photo':'');
+  av.style.backgroundImage = ph ? 'url('+ph+')' : '';
+  document.getElementById('hName').textContent=KID.ko;
+  document.getElementById('hStars').textContent=DB.stars||0;
+  const t=drawToday();
+  const allDone = t.total>0 && t.done>=t.total;
+  document.getElementById('hHi').textContent = '오늘 할 것 · '+t.done+'/'+t.total+'권'+(streakOf(DB)? ' · '+streakOf(DB)+'일 연속':'');
+  document.getElementById('missionText').textContent = allDone ? '오늘 미션 완료! 🎉' : ('책 '+t.total+'권 읽기');
+  document.getElementById('tLine').style.width = (t.total? t.done/t.total*100 : 0)+'%';
+
+  const tabs=document.getElementById('tabs'); tabs.innerHTML='';
+  const mk=(k,label)=>{ const b=document.createElement('button'); b.className='tab'+(curLevel===k?' on':'');
+    b.textContent=label; b.onclick=()=>{curLevel=k; drawHome();}; tabs.appendChild(b); };
+  mk('rec', KID.ko+' 추천');
+  [...new Set(BOOKS.map(b=>b.level))].sort().forEach(l=>mk(l, LEVEL_NAME[l]||('Lv.'+l)));
+  if(myBooks().length||WINK.length) mk('mine','📗 우리 책');
+  mk('all','전체');
+
+  const shelf=document.getElementById('shelf'); shelf.innerHTML='';
+  booksFor().forEach(b=>{
+    const rec=DB.books[b.id];
+    const el=document.createElement('button');
+    el.className='book'; el.onclick=()=>openBook(b.id);
+    el.innerHTML='<div class="cover"'+(b.cover? ' data-cover="'+b.cover+'"':'')+' style="background:'+b.bg+'">'+b.emoji+'</div>'+
+      (rec? '<div class="stars">'+'⭐'.repeat(rec.stars)+'</div>':'')+
+      (b.mine? '<div class="mybadge">우리 책</div>':(rec?'':'<div class="badge-new">NEW</div>'))+
+      '<h3 class="en">'+esc(fill(b.title))+'</h3>'+
+      '<div class="meta">Lv.'+b.level+' · '+b.pages.length+' 문장'+(rec? ' · '+rec.count+'번 읽음':'')+'</div>';
+    shelf.appendChild(el);
+  });
+  drawStamps();
+  fillCovers();
+  checkEnv();
+}
+
+/* ============================================================
+   13. 부모 리포트
+   ============================================================ */
+let repKid=null;
+function drawReport(kidId){
+  if(!KIDS.length){ go('pick'); drawPick(); return; }
+  repKid = kidId || (KID? KID.id : KIDS[0].id);
+  const seg=document.getElementById('repSeg'); seg.innerHTML='';
+  KIDS.forEach(k=>{
+    const b=document.createElement('button');
+    b.className = repKid===k.id? 'on':''; b.textContent=k.emoji+' '+k.ko;
+    b.onclick=()=>drawReport(k.id); seg.appendChild(b);
+  });
+
+  const db=loadFor(repKid);
+  document.getElementById('kBooks').textContent=Object.keys(db.books).length;
+  document.getElementById('kSent').textContent=db.sentences;
+  document.getElementById('kAcc').textContent=(db.accN? Math.round(db.accSum/db.accN):0)+'%';
+  document.getElementById('kStreak').textContent=streakOf(db)+'일';
+
+  const hist=document.getElementById('bookHist');
+  const es=Object.entries(db.books);
+  hist.innerHTML = !es.length? '<p class="emptynote">아직 읽은 책이 없어요.</p>'
+    : es.sort((a,b)=>b[1].best-a[1].best).map(([id,r])=>
+      '<div class="histrow"><span class="nm en">'+esc(r.title||id)+'</span><span>'+'⭐'.repeat(r.stars)+
+      '</span><span class="bb"><i style="width:'+r.best+'%"></i></span><span style="width:40px;text-align:right">'+r.best+'%</span></div>').join('');
+
+  const weak=document.getElementById('weakWords');
+  const ws=Object.entries(db.weak).sort((a,b)=>b[1]-a[1]).slice(0,16);
+  weak.innerHTML = !ws.length? '<p class="emptynote">아직 데이터가 없어요. 따라 읽기를 하면 쌓입니다.</p>'
+    : ws.map(([w,n])=>'<span class="wordchip">'+esc(w)+' <b>'+n+'</b></span>').join('');
+}
+function resetOne(){
+  const k=KIDS.find(x=>x.id===repKid);
+  if(!confirm(k.ko+'의 학습 기록(별·출석·정확도)을 모두 지울까요? 되돌릴 수 없습니다.')) return;
+  localStorage.removeItem(keyFor(k.id));
+  if(KID && KID.id===k.id) DB=blank();
+  drawReport(k.id);
+}
+
+/* ============================================================
+   시작
+   ============================================================ */
+document.getElementById('winkInput').onchange=function(){ if(this.files[0]) importWink(this.files[0]); };
+loadWink().then(()=>{ drawPick(); });
+drawPick();
+try{
+  const last=localStorage.getItem('readalong.lastKid');
+  if(last && KIDS.some(k=>k.id===last)){ /* 마지막 아이 기억은 하되 선택 화면은 항상 먼저 */ }
+}catch(e){}
+document.addEventListener('visibilitychange',()=>{ if(document.hidden){ speechSynthesis.cancel(); stopMic(); } });
+</script>
+</body>
+</html>
