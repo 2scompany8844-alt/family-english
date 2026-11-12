@@ -376,6 +376,20 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 .mustrow span{font-size:12px; font-weight:600; padding:5px 10px; border-radius:999px; background:var(--surface); color:var(--ink-2)}
 .mustrow span.on{background:var(--acc); color:var(--on-acc)}
 .passcard{align-self:stretch; background:var(--acc-soft); border-radius:var(--r-bubble); padding:14px 16px; display:flex; flex-direction:column; gap:10px; font-weight:700}
+.crow{display:flex; gap:8px; margin:0 0 12px}
+.crow button{flex:1; background:var(--surface); border-radius:var(--r-bubble); padding:14px 10px; font-weight:700; font-size:14px; text-align:center}
+.crow button small{display:block; font-weight:500; font-size:12px; color:var(--ink-2); margin-top:2px}
+.streak{font-weight:700; color:var(--acc-ink)}
+.diary{display:flex; flex-direction:column; gap:10px}
+.dent{display:flex; gap:12px; background:var(--surface); border-radius:var(--r-bubble); padding:12px}
+.dent img{width:64px; height:64px; object-fit:cover; border-radius:12px; flex-shrink:0}
+.dent div{min-width:0}
+.dent b{display:block; font-size:12px; color:var(--ink-2); font-weight:600}
+.dent p{margin:2px 0 0; font-size:15px; line-height:1.5; overflow-wrap:anywhere}
+.dform{background:var(--surface); border-radius:var(--r-card); padding:16px; display:flex; flex-direction:column; gap:10px; margin-bottom:12px}
+.dform textarea{width:100%; min-height:80px; padding:12px; border-radius:var(--r-pill); border:1.5px solid var(--line); background:var(--bg); color:var(--ink); font:inherit; font-size:16px; -webkit-user-select:text; user-select:text}
+.remind{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-2); margin:12px 0 0}
+.remind input{padding:6px 8px; border-radius:10px; border:1.5px solid var(--line); background:var(--bg); color:var(--ink); font:inherit}
 .lvtag{font-size:12px; font-weight:600; color:var(--ink-3); margin-top:2px}
 </style>
 </head>
@@ -476,10 +490,24 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
   <div class="tline"><i id="crsLine" style="width:0%"></i></div>
   <div id="crsMission"></div>
   <button class="hero" id="crsGo"></button>
+  <div class="crow">
+    <button onclick="quickFive()">⏱ 바쁜 날 5분<small>지난 표현 10개만</small></button>
+    <button onclick="openDiaryForm()">📔 일기 쓰기<small>오늘 써 본 영어</small></button>
+  </div>
+  <div class="dform" id="diaryForm" hidden>
+    <b>우리 집 영어 일기</b>
+    <textarea id="diaryText" placeholder="예: 슬아가 Rise and shine! 따라 하면서 웃었다"></textarea>
+    <input type="file" id="diaryPhoto" accept="image/*">
+    <button class="btn-wide btn-acc" style="max-width:none" onclick="saveDiary()">저장</button>
+    <p class="sc-note" style="margin:0">글과 사진은 이 휴대폰에만 저장돼요.</p>
+  </div>
   <div class="kidrow"><span>아이 부르는 이름 · <b id="kidName"></b></span><button onclick="editKid()">바꾸기</button></div>
   <div class="sech" style="margin-top:18px"><h2>상황 지도</h2><span id="crsCount"></span></div>
   <div class="cmap" id="crsMap"></div>
   <div class="legend"><span>○ 배움</span><span>◐ 익숙</span><span>● 마스터</span><span>🔒 곧 열려요</span></div>
+  <div class="remind">⏰ 매일 알림 <input type="time" id="remindTime" onchange="saveRemind()"> <span id="remindNote">알림은 다음 단계(서버 연결)에서 켜져요</span></div>
+  <div class="sech" style="margin-top:24px"><h2>우리 집 영어 일기</h2><span id="diaryCount"></span></div>
+  <div class="diary" id="diaryList"></div>
   <p class="sc-note">이름은 이 휴대폰에만 저장되고, 서버나 AI로 보내지 않아요.</p>
 </section>
 
@@ -2267,6 +2295,68 @@ function dayMark(n){
   return r.learned ? '○' : '';
 }
 function courseOk(key){ const c=CS(); c.ok[key]=(c.ok[key]||0)+1; save(); }
+/* 연속 기록: 코스를 한 날 + 일주일에 하루 쉬는 날 방패 */
+function markActive(){ const c=CS(); c.active=c.active||[]; if(!c.active.includes(today())){ c.active.push(today()); c.active=c.active.slice(-400); save(); } }
+function courseStreak(){
+  const A=new Set(CS().active||[]); let n=0, lastGap=-99, i=0;
+  const d=new Date(); if(!A.has(dstr(d))) d.setDate(d.getDate()-1);   // 오늘 아직 안 했으면 어제부터
+  for(; i<400; i++, d.setDate(d.getDate()-1)){
+    if(A.has(dstr(d))){ n++; continue; }
+    if(i-lastGap>=7 && n>0){ lastGap=i; continue; }                      // 방패: 7일에 한 번
+    break;
+  }
+  return {n, shield: (i-lastGap>=7)};
+}
+/* 바쁜 날 5분: 지난 표현 10개를 한글만 보고 영어로 */
+function quickFive(){
+  const learned=Object.keys(CS().days).map(Number).filter(n=>CS().days[n].learned);
+  if(!learned.length){ alert('먼저 Day 1을 해 보세요. 배운 표현으로 5분 복습을 만들어요.'); return; }
+  const pages=[];
+  learned.forEach(n=>dayExprs(n).forEach((e,i)=>pages.push({e,n,i,ok:CS().ok['d'+n+'e'+(i+1)]||0})));
+  pages.sort((a,b)=>a.ok-b.ok || Math.random()-.5);
+  curBook=Object.assign(courseBook(0, pages.slice(0,10).map(({e,n,i})=>coursePage(e.t,{k:e.k, x:e.x, xk:e.xk, snd:e.snd, hideAll:true, key:'d'+n+'e'+(i+1), audio:audioUrl(n,'e',i+1)})), {step:-1, noAuto:true}),
+    {onDone:()=>{ markActive(); openCourse(); }, onExit:()=>openCourse(), title:'바쁜 날 5분'});
+  curIdx=0; curScores=[]; showKo=true;
+  go('read'); document.getElementById('scene').hidden=true; document.getElementById('ytBox').hidden=true;
+  renderPage();
+}
+/* 우리 집 영어 일기 (사진은 이 기기 IndexedDB) */
+function openDiaryForm(prefill){
+  const f=document.getElementById('diaryForm'); f.hidden=false;
+  document.getElementById('diaryText').value=prefill||'';
+  document.getElementById('diaryText').focus();
+}
+async function saveDiary(){
+  const t=document.getElementById('diaryText').value.trim();
+  const file=document.getElementById('diaryPhoto').files[0];
+  if(!t && !file){ alert('한 줄이라도 적어 주세요.'); return; }
+  const c=CS(); c.diary=c.diary||[];
+  const ent={id:'dy'+Date.now(), date:today(), day:(c.mission&&c.mission.day)||todayDay(), text:t, photo:''};
+  if(file){
+    const img=await new Promise(res=>{ const im=new Image(); im.onload=()=>res(im); im.src=URL.createObjectURL(file); });
+    const W=720, cv=document.createElement('canvas'); cv.width=W; cv.height=Math.round(W*img.height/img.width);
+    cv.getContext('2d').drawImage(img,0,0,cv.width,cv.height);
+    const blob=await new Promise(r=>cv.toBlob(r,'image/jpeg',0.8));
+    try{ await idbPut('imgs', ent.id, blob); ent.photo=ent.id; }catch(e){}
+  }
+  c.diary.unshift(ent); markActive(); save();
+  document.getElementById('diaryPhoto').value='';
+  openCourse();
+}
+async function drawDiary(){
+  const list=CS().diary||[], box=document.getElementById('diaryList');
+  document.getElementById('diaryCount').textContent=list.length? list.length+'개' : '';
+  if(!list.length){ box.innerHTML='<p class="emptynote">미션을 해 보고 아이 반응을 남겨 보세요. 30일 뒤 우리 집 영어 앨범이 돼요.</p>'; return; }
+  box.innerHTML='';
+  for(const e of list.slice(0,30)){
+    const el=document.createElement('div'); el.className='dent';
+    let img='';
+    if(e.photo){ try{ const bl=await idbGet('imgs', e.photo); if(bl) img='<img src="'+URL.createObjectURL(bl)+'" alt="">'; }catch(x){} }
+    el.innerHTML=img+'<div><b>'+esc(e.date)+' · Day '+e.day+'</b><p>'+esc(e.text||'')+'</p></div>';
+    box.appendChild(el);
+  }
+}
+function saveRemind(){ CS().remind=document.getElementById('remindTime').value; save(); }
 function todayDay(){ for(let n=1;n<=OPEN_DAYS;n++){ if(!dayRec(n).done) return n; } return OPEN_DAYS; }
 async function openCourse(){
   try{ await loadCourse(); }catch(e){ alert('코스를 불러오지 못했어요. 인터넷을 확인해 주세요.'); return; }
@@ -2275,7 +2365,11 @@ async function openCourse(){
   document.getElementById('crsRole').firstChild.textContent=COURSE.role+' 영어 · '+COURSE.part;
   document.getElementById('crsTitle').textContent=COURSE.title+' — '+COURSE.part;
   const done=Object.values(c.days).filter(d=>d.done).length;
-  document.getElementById('crsSub').textContent='Day '+done+' / '+COURSE.days_total+' 완료';
+  const sk=courseStreak();
+  document.getElementById('crsSub').innerHTML='Day '+done+' / '+COURSE.days_total+' 완료'+(sk.n? ' · <span class="streak">🔥 '+sk.n+'일 연속</span>' : '')+(sk.shield? ' · 🛡 쉬는 날 방패 1' : '');
+  document.getElementById('diaryForm').hidden=true;
+  document.getElementById('remindTime').value=c.remind||'07:30';
+  drawDiary();
   document.getElementById('crsLine').style.width=(done/COURSE.days_total*100)+'%';
   document.getElementById('kidName').textContent = c.kid || '없음 (sweetie로 불러요)';
   // 어제 미션 확인
@@ -2302,7 +2396,7 @@ async function openCourse(){
   }
   document.getElementById('crsCount').textContent='마스터 '+master+' / '+COURSE.days_total;
 }
-function answerMission(yes){ const c=CS(); c.mission.answered=true; c.mission.did=yes; save(); openCourse(); }
+function answerMission(yes){ const c=CS(); c.mission.answered=true; c.mission.did=yes; save(); openCourse().then(()=>{ if(yes) openDiaryForm('어제 미션: '+c.mission.text.replace(/ 해 보기$/,'')+' → '); }); }
 function editKid(){
   const v=prompt('아이를 뭐라고 부르세요? (비우면 sweetie)', CS().kid||'');
   if(v===null) return;
@@ -2314,7 +2408,7 @@ function stepKey(n){ return n+'@'+today(); }
 function stepsDone(n){ const c=CS(); return (c.steps[stepKey(n)]||[]); }
 function markStep(n, i){ const c=CS(), k=stepKey(n), t='@'+today();
   const keep={}; Object.keys(c.steps).forEach(kk=>{ if(kk.endsWith(t)) keep[kk]=c.steps[kk]; });   // 오늘 것만 남김
-  keep[k]=(keep[k]||[]).filter(x=>x!==i).concat(i); c.steps=keep; save(); }
+  keep[k]=(keep[k]||[]).filter(x=>x!==i).concat(i); c.steps=keep; markActive(); save(); }
 function dayStepList(d){ return d.review ? [0,4,5] : [0,1,2,3,4,5]; }
 async function openDay(n){
   await loadCourse(); DAYN=n; go('day');
