@@ -2155,6 +2155,7 @@ function openTalk(){
   document.getElementById('talkLv').textContent='Lv.'+myLevel()+' '+LV_NAME[myLevel()]+' 수준에 맞춰 AI가 말해요.';
   const box=document.getElementById('sceneList'); box.innerHTML='';
   const list=SCENES.slice();
+  list.unshift({id:'free-talk', ic:'🎙', t:'프리토킹', ko:'내 수준·내 생활에 맞춘 질문에 답하기', free:true});
   if(DB.lastClip) list.unshift({id:'clip', ic:'🎬', t:'방금 본 장면 역할극', ko:DB.lastClip.title,
     role:'one of the characters in this scene from '+DB.lastClip.show, scene:'a scene like "'+DB.lastClip.title+'" from '+DB.lastClip.show+'. Lines from the scene: '+(DB.lastClip.lines||[]).join(' / ')});
   list.forEach(sc=>{
@@ -2164,8 +2165,34 @@ function openTalk(){
     box.appendChild(b);
   });
 }
+const Q_STYLE={1:'yes/no or either/or questions with very simple words', 2:'yes/no or either/or questions with very simple words',
+  3:'short, simple what/where/when questions about daily life', 4:'short, simple what/where/when questions about daily life',
+  5:'how/why questions and simple opinion questions', 6:'how/why questions and simple opinion questions',
+  7:'open questions, hypotheticals and short storytelling prompts', 8:'open questions, hypotheticals and short storytelling prompts'};
+function learnedChunks(){
+  if(!COURSE) return [];
+  const c=CS(); return Object.keys(c.days).map(Number).filter(n=>c.days[n].learned).map(n=>dayExprs(n).map(e=>e.x)).flat();
+}
 function sysPrompt(sc){
   const L=myLevel();
+  if(sc.free){
+    const role = (DB.course && COURSE) ? 'a parent of a young child (they are taking the course "'+COURSE.title+' — '+COURSE.part+'")' : 'an adult Korean English learner';
+    return 'You are a warm, curious native English speaker having a free-talk session with a Korean learner.\n'+
+      'The learner is '+role+'. Learner level: Lv.'+L+' of 8.\n'+
+      'Lead the conversation by asking ONE question at a time about the learner\'s real life in that role (their mornings, their child, meals, going out, weekends, work-life balance). Briefly react to their answer first (one short sentence), then ask the next question.\n'+
+      'Question style for this level: '+Q_STYLE[L]+'.\n'+
+      'Adapt in real time: if the learner\'s last answer was very short, partly Korean, or had several mistakes, make your next question easier; if it was fluent, make the next one slightly harder.\n'+
+      (sc.must.length ? 'The learner recently learned these expressions: '+sc.must.map(m=>'"'+m+'"').join(', ')+'. Now and then ask a question whose natural answer could use one of them (do not say which).\n' : '')+
+      'Fill these fields:\n'+
+      '- reply: your short reaction plus your next question (spoken, at most two short sentences)\n'+
+      '- ko: natural Korean translation of your reply\n'+
+      '- fix: the learner\'s latest message corrected. Change it ONLY if it has a grammar mistake or would sound unnatural to a native speaker; if it is already correct and natural, return it exactly unchanged. Never rewrite a correct sentence just for style. If the learner wrote Korean, give the English way to say it\n'+
+      '- why: one short Korean sentence about the mistake you fixed, or an empty string if nothing changed\n'+
+      '- hint: one simple example answer the learner could give to your question, at their level\n'+
+      '- used: the learned expressions (copied exactly from the list) that the learner\'s latest message used, allowing small natural variations; empty list if none\n'+
+      'Spoken words only: no stage directions, no asterisks, no emojis (your reply is read aloud).\n'+
+      'Keep it wholesome; children may be listening.';
+  }
   if(sc.course) return 'You are role-playing a young child so a Korean parent can practice everyday English at home.\n'+
     'You are: '+sc.course.kid+'. Speak like a 5-year-old: very short, simple sentences, natural and a little playful. React to what the parent says and stay in the scene. Call the parent "Mommy".\n'+
     'Scene: '+sc.course.goal+'. Learner level: Lv.'+L+' of 8.\n'+
@@ -2194,6 +2221,7 @@ function sysPrompt(sc){
 }
 function addBub(cls, html){ const d=document.createElement('div'); d.className=cls; d.innerHTML=html; document.getElementById('chatLog').appendChild(d); window.scrollTo(0, document.body.scrollHeight); return d; }
 async function startChat(sc){
+  if(sc.free){ try{ await loadCourse(); }catch(e){} sc.must=learnedChunks().slice(-15); }
   chat={sc, api:[], hint:'', used:new Set(), passed:false};
   go('chat');
   drawMust();
@@ -2235,9 +2263,20 @@ async function turn(text, first){
   chat.hint=r.hint||'';
   chat.busy=false;
   if(chat.sc.course && !first) courseUsed(r.used||[]);
+  if(chat.sc.free && !first){ (r.used||[]).forEach(u=>{ const hit=chat.sc.must.find(m=>norm(m)===norm(u)||norm(u).includes(norm(m))); if(hit) chat.used.add(hit); }); drawMust(); markActive && DB.course && markActive(); }
   speechSynthesis.cancel();
   const u=say(r.reply, 0.95);
   if(u && phoneOn) u.onend=()=>{ if(phoneOn && document.getElementById('s-chat').classList.contains('on')) talkListen(); };
+}
+async function wrapFree(){
+  if(!chat || chat.busy || chat.api.length<3){ alert('몇 번 더 대답해 보고 마쳐요.'); return; }
+  chat.busy=true; const typing=addBub('typing','오늘 대화 정리 중…');
+  try{
+    const r=await window.aiChat(getKey(), sysPrompt(chat.sc), chat.api.concat([{role:'user', content:'[The session is over. In reply, write a short summary in KOREAN for the learner with exactly three lines: "잘한 점: ...", "고칠 점: ...", "다음에 써 볼 표현: ..." (one English expression useful for them). Put the same text in ko. Leave fix, why and hint empty and used as an empty list.]'}]));
+    typing.remove();
+    addBub('passcard','📝 오늘 프리토킹<span style="font-weight:500; white-space:pre-line">'+esc(r.reply)+'</span>'+(chat.used.size?'<span style="font-weight:500">배운 표현 '+chat.used.size+'개를 대화에서 썼어요.</span>':''));
+  }catch(e){ typing.remove(); addBub('typing','정리하지 못했어요. 잠시 뒤 다시 눌러 주세요.'); }
+  chat.busy=false;
 }
 function showHint(){ const h=document.getElementById('hintLine'); if(!chat || !chat.hint) return; h.textContent='💡 '+chat.hint; h.hidden=false; }
 function setPhone(on){ phoneOn=on; const b=document.getElementById('phoneBtn'); b.classList.toggle('on', on); b.textContent= on? '📞 통화 중' : '📞 전화 모드'; }
@@ -2440,7 +2479,8 @@ async function openDay(n){
     const r=dayRec(n); r.done=r.done||today(); save();
     card.innerHTML='<div class="no">오늘 완료!</div><h3>Day '+n+' 끝 🎉</h3><p>상황 지도 도장: '+(dayMark(n)||'○')+
       '<br>○ 배움 → ◐ 익숙(다음 워밍업에서 힌트 없이 맞히기) → ● 마스터(다른 날 역할극 2번 통과)</p>'+
-      '<button class="btn-wide btn-acc" style="max-width:none" onclick="openCourse()">상황 지도로</button>';
+      '<button class="btn-wide btn-acc" style="max-width:none" onclick="startChat({t:\'프리토킹\', ko:\'오늘 배운 표현으로 3분\', free:true})">🎙 오늘 배운 표현으로 프리토킹 3분</button>'+
+      '<button class="btn-wide btn-line" style="max-width:none" onclick="openCourse()">상황 지도로</button>';
     return;
   }
   const st=STEPS[next];
@@ -2551,6 +2591,13 @@ function startCourseChat(n){
 }
 function drawMust(){
   const row=document.getElementById('mustRow');
+  if(chat && chat.sc.free){
+    row.hidden=false;
+    row.innerHTML='<span style="background:transparent;padding-left:0">배운 표현 써 보기 · '+chat.used.size+'개</span>'+
+      chat.sc.must.map(m=>'<span class="'+(chat.used.has(m)?'on':'')+'">'+esc(m)+'</span>').join('')+
+      '<span style="background:transparent"><button onclick="wrapFree()" style="font-weight:700;color:var(--acc-ink)">대화 마치기</button></span>';
+    return;
+  }
   if(!chat || !chat.sc.course){ row.hidden=true; return; }
   const c=chat.sc.course; row.hidden=false;
   row.innerHTML='<span style="background:transparent;padding-left:0">'+c.must.length+'개 중 '+c.need+'개 쓰면 통과 · 지금 '+chat.used.size+'개</span>'+
