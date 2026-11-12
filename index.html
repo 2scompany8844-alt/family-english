@@ -308,6 +308,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 .xcard b{font-size:16px; font-weight:700; color:var(--acc-ink)}
 .xcard span{font-size:14px; color:var(--ink-2)}
 .xcard .snd{font-size:13px; color:var(--ink-3)}
+.w.hintw{color:var(--ink-3)!important; letter-spacing:1px}
 .reveal{margin-top:6px; font-size:14px; font-weight:700; color:var(--ink); background:var(--bg); padding:9px 18px; border-radius:999px}
 .tries{display:flex; justify-content:center; gap:6px; margin-top:8px}
 .tries i{width:8px; height:8px; border-radius:50%; background:var(--line)}
@@ -589,7 +590,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
     <p class="ctx" id="ctxLine" hidden></p>
     <p class="sentence en" id="sentence"></p>
     <p class="ko hide" id="koText"></p>
-    <button class="reveal" id="revealBtn" onclick="revealKey(true)" hidden>정답 보기</button>
+    <button class="reveal" id="revealBtn" onclick="keyHint()" hidden>💡 힌트 보기</button>
     <div class="xcard" id="xCard" hidden></div>
     <button class="ko-toggle" onclick="toggleKo()" id="koBtn">뜻 보기</button>
     <div class="lvtag" id="lvTag"></div>
@@ -2062,7 +2063,8 @@ function findKey(words, x){
 function setupKey(p){
   const spans=[...document.querySelectorAll('#sentence .w')];
   keyIdx = p.hideAll ? spans.map((_,i)=>i) : ((curBook.clip || curBook.course) && p.x) ? findKey(spans.map(s=>s.dataset.raw), p.x) : [];
-  revealed = !keyIdx.length; hinted=false;
+  revealed = !keyIdx.length; hinted=false; hintStage=0;
+  document.getElementById('revealBtn').textContent='💡 힌트 보기';
   const cx=document.getElementById('ctxLine'); cx.hidden=!p.ctx; cx.textContent = p.ctx ? (p.ctxIcon||'🧒')+' '+p.ctx : '';
   keyIdx.forEach(i=>spans[i].classList.add('blank'));
   document.getElementById('revealBtn').hidden = revealed;
@@ -2077,12 +2079,26 @@ function setupKey(p){
   if(p.links && p.links.length) xc.innerHTML += '<div class="link">🔗 '+p.links.map(l=>'Day '+l.day+' · '+esc(l.t)).join(' / ')+'</div>';
   drawTries();
 }
+/* 힌트 1단계: 빈칸 단어의 첫 글자 + 글자 수만큼 밑줄, 뜻 → 그다음에야 정답 보기 */
+let hintStage=0;
+function keyHint(){
+  if(revealed) return;
+  if(hintStage>0){ revealKey(true); return; }
+  hintStage=1; hinted=true;
+  const p=curPage(), spans=[...document.querySelectorAll('#sentence .w')];
+  keyIdx.forEach(i=>{ let first=true;
+    spans[i].textContent = spans[i].dataset.raw.replace(/[A-Za-z]/g, ch=>{ if(first){ first=false; return ch; } return '_'; });
+    spans[i].classList.remove('blank'); spans[i].classList.add('hintw'); });
+  const ko = p.hideAll ? '' : (p.xk || '');
+  document.getElementById('sayNow').textContent = '💡 첫 글자를 보고 말해 보세요' + (ko ? ' · 뜻: '+ko : '');
+  document.getElementById('revealBtn').textContent='정답 보기';
+}
 function revealKey(byHint){
   if(revealed) return;
   if(byHint) hinted=true;
   revealed=true;
   const spans=[...document.querySelectorAll('#sentence .w')];
-  keyIdx.forEach(i=>{ spans[i].classList.remove('blank'); spans[i].classList.add('key'); });
+  keyIdx.forEach(i=>{ spans[i].textContent=spans[i].dataset.raw; spans[i].classList.remove('blank','hintw'); spans[i].classList.add('key'); });
   document.getElementById('revealBtn').hidden=true;
   document.getElementById('sayNow').textContent='이제 말해 보세요';
   document.getElementById('xCard').hidden = !curPage().x;
