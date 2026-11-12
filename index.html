@@ -375,7 +375,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
   <div class="sech" id="shelfTop"><h2>책장</h2><button onclick="openAdd()" style="font-size:14px; font-weight:600; color:var(--ink-2)">+ 책 추가</button></div>
   <div class="tabs" id="tabs"></div>
   <div class="shelf" id="shelf"></div>
-  <div class="foot"><button onclick="go('report');drawReport()" style="font-weight:600; color:var(--ink-2); padding:8px">📊 학습 리포트</button></div>
+  <div class="foot"><button onclick="go('report');drawReport()" style="font-weight:600; color:var(--ink-2); padding:8px">📊 학습 리포트</button><button onclick="startDiag()" style="font-weight:600; color:var(--ink-2); padding:8px">🎯 레벨 진단</button></div>
 
   <nav class="tabbar" aria-label="메뉴"><div class="in">
     <button class="on" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>홈</button>
@@ -964,6 +964,7 @@ function grade(said){
   circle.style.color=color;
   document.getElementById('resultTxt').innerHTML=msg+'<small>'+sub+'</small>';
 
+  if(curBook.diag) diagScores[curIdx]=Math.max(diagScores[curIdx]||0, r.acc);
   if(curBook.clip){ tries[triesKey()]=(tries[triesKey()]||0)+1; drawTries();
     document.getElementById('micState').textContent = (tries[triesKey()]>=TRIES) ? '3번 다 했어요! 다음 문장으로 가 볼까요?' : (TRIES-tries[triesKey()])+'번 더 따라 해 보세요'; }
   if(!pageScored){
@@ -992,7 +993,7 @@ async function openBook(id){
   } else releaseScenes();
   renderPage();
 }
-function exitBook(){ releaseScenes(); if(curBook && curBook.clip){ openClips(); } else { go('home'); drawHome(); } }
+function exitBook(){ releaseScenes(); if(curBook && curBook.diag){ go('home'); drawHome(); return; } if(curBook && curBook.clip){ openClips(); } else { go('home'); drawHome(); } }
 
 function renderPage(){
   pageScored=false;
@@ -1028,7 +1029,7 @@ function renderKo(){
 function toggleKo(){ showKo=!showKo; renderKo(); }
 function nextPage(){
   speechSynthesis.cancel(); stopMic();
-  if(curIdx<curBook.pages.length-1){ curIdx++; renderPage(); } else startQuiz();
+  if(curIdx<curBook.pages.length-1){ curIdx++; renderPage(); } else if(curBook.diag) finishDiag(); else startQuiz();
 }
 function prevPage(){
   speechSynthesis.cancel(); stopMic();
@@ -1259,12 +1260,13 @@ function finishBook(){
   const prev=DB.books[curBook.id]||{stars:0,best:0,count:0};
   DB.books[curBook.id]={stars:Math.max(prev.stars,st), best:Math.max(prev.best,avg), count:prev.count+1, last:today(), title:fill(curBook.title)};
   DB.stars=Object.values(DB.books).reduce((a,b)=>a+b.stars,0);
+  const lvMsg = curScores.length ? adjustLevel(avg) : '';
   markToday(); save();
 
   go('reward');
   document.getElementById('trophy').textContent = st===3?'🏆':(st===2?'🎖️':'🌱');
   document.getElementById('rwTitle').textContent = (st===3? KID.ko+', 최고예요!' : (st===2? '잘했어요, '+KID.ko+'!' : '끝까지 읽었어요!'));
-  document.getElementById('rwSub').innerHTML=fill(curBook.title)+' 완독<br>'+(qTotal? '퀴즈 '+qRight+'/'+qTotal:'')+(curScores.length? ' · 읽기 정확도 '+avg+'%':'');
+  document.getElementById('rwSub').innerHTML=fill(curBook.title)+' 완독<br>'+(qTotal? '퀴즈 '+qRight+'/'+qTotal:'')+(curScores.length? ' · 읽기 정확도 '+avg+'%':'')+(lvMsg? '<br><b>'+lvMsg+'</b>':'');
   document.getElementById('rwStars').innerHTML=Array.from({length:3},(_,i)=>'<span>'+(i<st?'⭐':'☆')+'</span>').join('');
 
   if(gotCoupon){
@@ -1483,7 +1485,7 @@ function renderScene(){
   const src = photo || built;
   sc.classList.toggle('hasimg', !!src);
   sc.innerHTML = src ? '<img src="'+src+'" alt="">' : '<span>'+p.e+'</span>';
-  if(!curBook.wink){
+  if(!curBook.wink && !curBook.diag){
     const btn=document.createElement('button');
     btn.className='photoBtn';
     btn.textContent = photo? '사진 지우기' : '📷 사진 넣기';
@@ -1691,7 +1693,8 @@ function coverAttr(b){ return b.cover? ' data-cover="'+b.cover+'"' : ''; }
 async function drawDailyLine(hero, next){
   let list=null; try{ list=await loadClips(); }catch(e){}
   if(!list || !KID || KID.kind!=='adult') return;
-  const lines=[]; list.forEach(c=>c.lines.forEach((l,i)=>{ if(l.x && l.lv>=4) lines.push({c, l, i}); }));
+  let lines=[]; list.forEach(c=>c.lines.forEach((l,i)=>{ if(l.x && nearMe(l.lv)) lines.push({c, l, i}); }));
+  if(!lines.length) list.forEach(c=>c.lines.forEach((l,i)=>{ if(l.x) lines.push({c, l, i}); }));
   if(!lines.length) return;
   const d=new Date(), seed=d.getFullYear()*372+d.getMonth()*31+d.getDate();
   const pick=lines[seed % lines.length];
@@ -1706,6 +1709,14 @@ async function drawDailyLine(hero, next){
 }
 function clipDoneToday(){ return Object.entries(DB.books).filter(([id,r])=>id.indexOf('clip_')===0 && r.last===today()).length; }
 function drawToday(){
+  if(KID.kind==='adult' && !DB.level){
+    const hero=document.getElementById('todayHero'), next=document.getElementById('todayNext');
+    next.innerHTML=''; next.hidden=true;
+    hero.innerHTML='<button class="hero" onclick="startDiag()"><div class="hcover">🎯</div>'+
+      '<h3>레벨 진단부터 해요</h3><div class="hm">6~7문장 · 3~5분 · 쉬운 문장부터 따라 말하기</div>'+
+      '<span class="hbtn">진단 시작</span></button>';
+    return {done:0, total:1, adult:true, diag:true};
+  }
   if(KID.kind==='adult'){
     const n=clipDoneToday();
     const hero=document.getElementById('todayHero'), next=document.getElementById('todayNext');
@@ -1751,7 +1762,7 @@ function drawToday(){
 let curLevel='rec';
 function booksFor(){
   const A=allBooks();
-  if(curLevel==='rec') return A.filter(b=>KID.levels.includes(b.level)||b.mine);
+  if(curLevel==='rec'){ const R = DB.level ? [DB.level, DB.level+1] : KID.levels; const f=A.filter(b=>R.includes(b.level)||b.mine); return f.length? f : A; }
   if(curLevel==='mine') return A.filter(b=>b.mine);
   if(curLevel==='all') return A;
   return A.filter(b=>b.level===curLevel);
@@ -1771,8 +1782,8 @@ function drawHome(){
   document.getElementById('hStars').textContent=DB.stars||0;
   const t=drawToday();
   const allDone = t.total>0 && t.done>=t.total;
-  document.getElementById('hHi').textContent = '오늘 할 것 · '+t.done+'/'+t.total+(t.adult?'':'권')+(streakOf(DB)? ' · '+streakOf(DB)+'일 연속':'');
-  document.getElementById('missionText').textContent = allDone ? '오늘 미션 완료! 🎉' : (t.adult? '오늘의 한 문장' : '책 '+t.total+'권 읽기');
+  document.getElementById('hHi').textContent = (DB.level? 'Lv.'+DB.level+' '+LV_NAME[DB.level]+' · ' : '') + '오늘 할 것 · '+t.done+'/'+t.total+(t.adult?'':'권')+(streakOf(DB)? ' · '+streakOf(DB)+'일 연속':'');
+  document.getElementById('missionText').textContent = allDone ? '오늘 미션 완료! 🎉' : (t.diag? '먼저 내 레벨 찾기' : (t.adult? '오늘의 한 문장' : '책 '+t.total+'권 읽기'));
   document.getElementById('stampSec').hidden = KID.kind==='adult';
   document.getElementById('tLine').style.width = (t.total? t.done/t.total*100 : 0)+'%';
 
@@ -1881,6 +1892,61 @@ function drawTries(){
 }
 
 /* ============================================================
+   15. 레벨 — 진단(단계마다 한 문장) · 최근 3번 평균으로 자동 조정
+   ============================================================ */
+const LV_NAME={1:'첫걸음',2:'기초',3:'초급',4:'초중급',5:'중급',6:'중상급',7:'상급',8:'원어민급'};
+function myLevel(){ return DB.level || ({kid1:1, kid2:3, adult:4})[KID.kind] || 3; }
+function nearMe(lv){ return Math.abs((lv||0)-myLevel())<=1; }
+let diagScores=[];
+async function startDiag(){
+  let pool=[];
+  if(KID.kind==='adult'){
+    let list=null; try{ list=await loadClips(); }catch(e){}
+    (list||[]).forEach(c=>c.lines.forEach(l=>pool.push({t:l.t, k:l.k, lv:l.lv})));
+  } else {
+    allBooks().forEach(b=>b.pages.forEach(pg=>{ if(pg.t) pool.push({t:fill(pg.t), k:fill(pg.k||''), lv:b.level}); }));
+  }
+  const steps = KID.kind==='adult' ? [2,3,4,5,6,7,8] : [1,1,2,2,3,3,4,4];
+  const used=new Set(), pages=[];
+  steps.forEach(lv=>{
+    const c=pool.filter(x=>x.lv===lv && !used.has(x.t) && x.t.split(' ').length<=14);
+    if(!c.length) return;
+    const pick=c[Math.floor(Math.random()*c.length)]; used.add(pick.t);
+    pages.push({t:pick.t, k:pick.k, lv:pick.lv, e:'🎯'});
+  });
+  if(pages.length<3){ alert(KID.kind==='adult' ? '진단할 문장이 없어요. 가족 링크로 클립을 먼저 열어 주세요.' : '진단할 책 문장이 부족해요.'); return; }
+  curBook={id:'diag', diag:true, title:'레벨 진단', emoji:'🎯', level:0, pages, quiz:[], bg:'var(--surface)'};
+  curIdx=0; curScores=[]; diagScores=[];
+  go('read');
+  document.getElementById('scene').hidden=false; document.getElementById('ytBox').hidden=true;
+  renderPage();
+}
+function finishDiag(){
+  const res=curBook.pages.map((pg,i)=>({lv:pg.lv, sc:diagScores[i]||0}));
+  let lvl = KID.kind==='adult' ? 2 : 1, miss=0;
+  for(const r of res){
+    if(r.sc>=75) lvl=Math.max(lvl, r.lv);
+    else if(++miss>=2) break;            // 두 번 미끄러지면 멈춤
+  }
+  DB.level=lvl; DB.recent=[]; save();
+  go('reward');
+  document.getElementById('trophy').textContent='🎯';
+  document.getElementById('rwTitle').textContent='Lv.'+lvl+' '+LV_NAME[lvl];
+  document.getElementById('rwSub').innerHTML='단계별 점수 · '+res.map(r=>'Lv.'+r.lv+' '+r.sc+'점').join(' · ')+
+    '<br>앞으로 추천 클립과 오늘의 한 문장을 이 레벨에 맞춰 드려요.';
+  document.getElementById('rwStars').innerHTML='';
+}
+/* 최근 3번 평균: 85점 이상이면 올리고, 55점 미만이면 내린다 */
+function adjustLevel(avg){
+  DB.recent=(DB.recent||[]).concat(avg).slice(-3);
+  if(DB.recent.length<3) return '';
+  const m=DB.recent.reduce((a,b)=>a+b,0)/3, L=myLevel();
+  if(m>=85 && L<8){ DB.level=L+1; DB.recent=[]; return '레벨 업! 이제 Lv.'+(L+1)+' '+LV_NAME[L+1]; }
+  if(m<55 && L>1){ DB.level=L-1; DB.recent=[]; return 'Lv.'+(L-1)+'로 맞췄어요. 조금 쉬운 것부터 다시 해 봐요'; }
+  return '';
+}
+
+/* ============================================================
    14. 유튜브 클립 — 대사는 clips.bin(암호화)에서 읽는다.
        가족 링크 #k=<키> 로 한 번 연 기기에만 키가 저장된다.
    ============================================================ */
@@ -1921,13 +1987,14 @@ async function openClips(){
       : '클립을 열지 못했어요. 인터넷 연결을 확인하거나 가족 링크로 다시 열어 주세요.')+'</p>';
     return;
   }
-  const cats=['전체'].concat([...new Set(list.map(c=>c.cat||'기타'))]);
-  if(!cats.includes(openClips.cat)) openClips.cat='전체';
+  const cats=['추천','전체'].concat([...new Set(list.map(c=>c.cat||'기타'))]);
+  if(!cats.includes(openClips.cat)) openClips.cat='추천';
   const tb=document.getElementById('clipTabs'); tb.innerHTML='';
   cats.forEach(k=>{ const b=document.createElement('button'); b.className='tab'+(openClips.cat===k?' on':''); b.textContent=k;
+    if(k==='추천') b.textContent='추천 Lv.'+myLevel();
     b.onclick=()=>{ openClips.cat=k; openClips(); }; tb.appendChild(b); });
   box.innerHTML='';
-  list.filter(c=>openClips.cat==='전체' || (c.cat||'기타')===openClips.cat).forEach(c=>{
+  list.filter(c=>openClips.cat==='전체' || (openClips.cat==='추천' ? nearMe(c.lv) : (c.cat||'기타')===openClips.cat)).forEach(c=>{
     const rec=DB.books['clip_'+c.id];
     const el=document.createElement('button');
     el.className='ccard'; el.onclick=()=>openClip(c.id);
