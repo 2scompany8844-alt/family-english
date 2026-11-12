@@ -390,6 +390,13 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 .dform textarea{width:100%; min-height:80px; padding:12px; border-radius:var(--r-pill); border:1.5px solid var(--line); background:var(--bg); color:var(--ink); font:inherit; font-size:16px; -webkit-user-select:text; user-select:text}
 .remind{display:flex; align-items:center; gap:8px; font-size:14px; color:var(--ink-2); margin:12px 0 0}
 .remind input{padding:6px 8px; border-radius:10px; border:1.5px solid var(--line); background:var(--bg); color:var(--ink); font:inherit}
+.vars{display:flex; flex-direction:column; gap:6px; margin-top:8px; padding-top:8px; border-top:1px solid var(--line)}
+.vars small{font-size:12px; font-weight:700; color:var(--ink-2)}
+.vrow{display:flex; align-items:center; gap:8px; text-align:left; background:transparent; padding:4px 0}
+.vrow em{font-style:normal; flex-shrink:0; font-size:11px; font-weight:700; color:var(--acc-ink); background:var(--acc-soft); border-radius:999px; padding:2px 8px}
+.vrow span{font-size:14px; color:var(--ink); line-height:1.35}
+.vrow span i{display:block; font-style:normal; font-size:12px; color:var(--ink-2)}
+.link{font-size:12px; color:var(--ink-2); margin-top:6px}
 .lvtag{font-size:12px; font-weight:600; color:var(--ink-3); margin-top:2px}
 </style>
 </head>
@@ -502,6 +509,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
     <p class="sc-note" style="margin:0">글과 사진은 이 휴대폰에만 저장돼요.</p>
   </div>
   <div class="kidrow"><span>아이 부르는 이름 · <b id="kidName"></b></span><button onclick="editKid()">바꾸기</button></div>
+  <p class="sc-note" id="noteLine" style="margin:-4px 0 0"></p>
   <div class="sech" style="margin-top:18px"><h2>상황 지도</h2><span id="crsCount"></span></div>
   <div class="cmap" id="crsMap"></div>
   <div class="legend"><span>○ 배움</span><span>◐ 익숙</span><span>● 마스터</span><span>🔒 곧 열려요</span></div>
@@ -2029,13 +2037,18 @@ function setupKey(p){
   const spans=[...document.querySelectorAll('#sentence .w')];
   keyIdx = p.hideAll ? spans.map((_,i)=>i) : ((curBook.clip || curBook.course) && p.x) ? findKey(spans.map(s=>s.dataset.raw), p.x) : [];
   revealed = !keyIdx.length; hinted=false;
-  const cx=document.getElementById('ctxLine'); cx.hidden=!p.ctx; cx.textContent = p.ctx ? '🧒 '+p.ctx : '';
+  const cx=document.getElementById('ctxLine'); cx.hidden=!p.ctx; cx.textContent = p.ctx ? (p.ctxIcon||'🧒')+' '+p.ctx : '';
   keyIdx.forEach(i=>spans[i].classList.add('blank'));
   document.getElementById('revealBtn').hidden = revealed;
   document.getElementById('sayNow').textContent = revealed ? '이제 말해 보세요' : (p.hideAll ? '영어로 말해 보세요' : '빈칸에 뭐라고 했을까요?');
   const xc=document.getElementById('xCard');
   xc.hidden=true;
   xc.innerHTML = p.x ? '<b>'+esc(p.x)+'</b><span>'+esc(p.xk||'')+'</span>'+(p.snd?'<span class="snd">소리 · '+esc(p.snd)+'</span>':'') : '';
+  if(p.vars && p.vars.length){
+    xc.innerHTML += '<div class="vars"><small>이렇게도 바꿔 말해요</small>'+p.vars.map((v,i)=>'<button class="vrow" data-vi="'+i+'"><em>'+esc(v.how)+'</em><span>'+esc(v.t)+'<i>'+esc(v.k)+'</i></span></button>').join('')+'</div>';
+    xc.querySelectorAll('.vrow').forEach(b=>b.onclick=()=>playUrls([p.vars[+b.dataset.vi].audio]));
+  }
+  if(p.links && p.links.length) xc.innerHTML += '<div class="link">🔗 '+p.links.map(l=>'Day '+l.day+' · '+esc(l.t)).join(' / ')+'</div>';
   drawTries();
 }
 function revealKey(byHint){
@@ -2215,7 +2228,7 @@ async function turn(text, first){
   if(!first && chat.lastMe){
     const same = norm(r.fix||'')===norm(chat.api[chat.api.length-2].content);
     if(same || !r.fix) addBub('fixcard good','✓ 자연스러워요');
-    else addBub('fixcard','<small>이렇게 바꿔 보세요</small>'+esc(r.fix)+(r.why?'<span>'+esc(r.why)+'</span>':''));
+    else { addBub('fixcard','<small>이렇게 바꿔 보세요</small>'+esc(r.fix)+(r.why?'<span>'+esc(r.why)+'</span>':'')+'<span>✏️ 내 실수 노트에 담았어요</span>'); addMistake(chat.api[chat.api.length-2].content, r.fix, r.why); }
   }
   addBub('who', esc(chat.sc.t));
   addBub('bub ai', esc(r.reply)+(r.ko?'<span class="ko">'+esc(r.ko)+'</span>':''));
@@ -2294,7 +2307,11 @@ function dayMark(n){
   if(okCount(n)>=2) return '◐';
   return r.learned ? '○' : '';
 }
-function courseOk(key){ const c=CS(); c.ok[key]=(c.ok[key]||0)+1; save(); }
+function courseOk(key){
+  const c=CS();
+  if(key.indexOf('note:')===0){ const m=(c.notes||[]).find(x=>'note:'+x.id===key); if(m){ m.ok++; if(m.ok>=2) c.notes=c.notes.filter(x=>x!==m); } save(); return; }
+  c.ok[key]=(c.ok[key]||0)+1; save();
+}
 /* 연속 기록: 코스를 한 날 + 일주일에 하루 쉬는 날 방패 */
 function markActive(){ const c=CS(); c.active=c.active||[]; if(!c.active.includes(today())){ c.active.push(today()); c.active=c.active.slice(-400); save(); } }
 function courseStreak(){
@@ -2314,7 +2331,7 @@ function quickFive(){
   const pages=[];
   learned.forEach(n=>dayExprs(n).forEach((e,i)=>pages.push({e,n,i,ok:CS().ok['d'+n+'e'+(i+1)]||0})));
   pages.sort((a,b)=>a.ok-b.ok || Math.random()-.5);
-  curBook=Object.assign(courseBook(0, pages.slice(0,10).map(({e,n,i})=>coursePage(e.t,{k:e.k, x:e.x, xk:e.xk, snd:e.snd, hideAll:true, key:'d'+n+'e'+(i+1), audio:audioUrl(n,'e',i+1)})), {step:-1, noAuto:true}),
+  curBook=Object.assign(courseBook(0, notePages(3).concat(pages.slice(0,10).map(({e,n,i})=>exprPage(n,i,{hideAll:true, key:'d'+n+'e'+(i+1), vars:[]}))).slice(0,10), {step:-1, noAuto:true}),
     {onDone:()=>{ markActive(); openCourse(); }, onExit:()=>openCourse(), title:'바쁜 날 5분'});
   curIdx=0; curScores=[]; showKo=true;
   go('read'); document.getElementById('scene').hidden=true; document.getElementById('ytBox').hidden=true;
@@ -2372,6 +2389,7 @@ async function openCourse(){
   drawDiary();
   document.getElementById('crsLine').style.width=(done/COURSE.days_total*100)+'%';
   document.getElementById('kidName').textContent = c.kid || '없음 (sweetie로 불러요)';
+  document.getElementById('noteLine').textContent = (c.notes&&c.notes.length) ? '✏️ 내 실수 노트 '+c.notes.length+'개 — 워밍업과 바쁜 날 5분에 섞여 나와요' : '';
   // 어제 미션 확인
   const ms=document.getElementById('crsMission'); ms.innerHTML='';
   if(c.mission && !c.mission.answered && c.mission.date!==today()){
@@ -2437,6 +2455,31 @@ async function openDay(n){
   const sk=document.getElementById('stepSkip'); if(sk) sk.onclick=()=>{ markStep(n,next); openDay(n); };
 }
 function audioUrl(n, kind, i){ return 'audio/'+COURSE.id+'/d'+n+'_'+kind+i+'.mp3'; }
+/* 레벨별 층: Lv.3 이하는 '바꿔 끼우기'만, Lv.4 이상은 질문형·과거형·부드럽게까지 */
+function varsFor(n, k){
+  const e=dayExprs(n)[k]; if(!e || !e.vars) return [];
+  const all=e.vars.map((v,m)=>Object.assign({}, v, {audio:audioUrl(n,'e',(k+1)+'_v'+(m+1))}));
+  return myLevel()<=3 ? all.filter(v=>v.how==='바꿔 끼우기') : all;
+}
+function linksFor(n, k){
+  const e=dayExprs(n)[k]; if(!e || !e.pat) return [];
+  const out=[]; COURSE.days.forEach(d=>(d.exprs||[]).forEach(o=>{ if(d.day!==n && o.pat===e.pat) out.push({day:d.day, t:fillKid(o.t)}); }));
+  return out;
+}
+function exprPage(n, k, extra){
+  const e=dayExprs(n)[k];
+  return coursePage(e.t, Object.assign({k:e.k, x:e.x, xk:e.xk, snd:e.snd, audio:audioUrl(n,'e',k+1), vars:varsFor(n,k), links:linksFor(n,k)}, extra||{}));
+}
+/* 내 실수 노트: AI가 고쳐 준 문장 → 워밍업에서 힌트 없이 2번 맞히면 졸업 */
+function addMistake(said, fix, why){
+  const c=CS(); c.notes=c.notes||[];
+  if(c.notes.some(m=>norm(m.fix)===norm(fix))) return;
+  c.notes.unshift({id:'m'+Date.now(), said, fix, why, date:today(), ok:0}); c.notes=c.notes.slice(0,40); save();
+}
+function notePages(max){
+  return (CS().notes||[]).slice(0,max).map(m=>({t:m.fix, raw:m.fix, k:m.why||'바르게 고쳐 말해 보세요', e:'✏️', hideAll:true, key:'note:'+m.id,
+    ctx:m.said, ctxIcon:'✏️ 내가 했던 말:', speakText:m.fix}));
+}
 function coursePage(t, extra){ return Object.assign({t:fillKid(t), raw:t, e:'🗣'}, extra); }
 function courseBook(n, pages, opts){
   return Object.assign({id:'course_'+COURSE.id+'_d'+n, course:true, title:'Day '+n, emoji:'🗣', level:myLevel(), quiz:[], pages,
@@ -2450,19 +2493,29 @@ function warmupPages(n){
     const ex=dayExprs(sd);
     // 덜 맞힌 표현부터 2개씩
     ex.map((e,i)=>({e,i,ok:CS().ok['d'+sd+'e'+(i+1)]||0})).sort((a,b)=>a.ok-b.ok).slice(0,2).forEach(({e,i})=>
-      pages.push(coursePage(e.t, {k:e.k, x:e.x, xk:e.xk, snd:e.snd, hideAll:true, key:'d'+sd+'e'+(i+1), audio:audioUrl(sd,'e',i+1)})));
+      pages.push(exprPage(sd, i, {hideAll:true, key:'d'+sd+'e'+(i+1), vars:[]})));
   });
-  return pages.slice(0,10);
+  // 오늘 표현과 같은 틀을 쓰는 지난 날 표현 (연계)
+  if(n!==7) dayExprs(n).forEach((e,k)=>linksFor(n,k).filter(l=>l.day<n).forEach(l=>{
+    const li=dayExprs(l.day).findIndex(o=>fillKid(o.t)===l.t);
+    if(li>=0 && !pages.some(pg=>pg.key==='d'+l.day+'e'+(li+1))) pages.unshift(exprPage(l.day, li, {hideAll:true, key:'d'+l.day+'e'+(li+1), vars:[]}));
+  }));
+  return notePages(2).concat(pages).slice(0,10);
 }
 function runStep(n, i){
   const d=COURSE.days.find(x=>x.day===n);
   let pages=[], opts={step:i};
   if(i===0){ pages=warmupPages(n); opts.noAuto=true; if(!pages.length){ markStep(n,0); openDay(n); return; } }
-  if(i===1){ pages=d.exprs.map((e,k)=>coursePage(e.t,{k:e.k, x:e.x, xk:e.xk, snd:e.snd, audio:audioUrl(n,'e',k+1)})); opts.after=()=>{ dayRec(n).learned=true; save(); }; }
+  if(i===1){ pages=d.exprs.map((e,k)=>exprPage(n,k)); opts.after=()=>{ dayRec(n).learned=true; save(); }; }
   if(i===2){ d.dialog.forEach((l,k)=>{ if(l.who!=='mom') return; const prev=d.dialog[k-1];
       pages.push(coursePage(l.t,{k:l.k, audio:audioUrl(n,'l',k+1), ctx: prev&&prev.who==='kid'? prev.t : '', ctxAudio: prev&&prev.who==='kid'? audioUrl(n,'l',k) : ''})); });
       opts.tries=true; }
-  if(i===3){ pages=d.exprs.map((e,k)=>coursePage(e.t,{k:e.k, x:e.x, xk:e.xk, snd:e.snd, hideAll:true, audio:audioUrl(n,'e',k+1)})); opts.noAuto=true; }
+  if(i===3){
+    const base=d.exprs.map((e,k)=>exprPage(n,k,{hideAll:true, vars:[]}));
+    const vs=d.exprs.map((e,k)=>{ const v=varsFor(n,k); if(!v.length) return null; const pick=v[Math.floor(Math.random()*v.length)];
+      return coursePage(pick.t,{k:pick.k+' ('+pick.how+')', x:pick.x, snd:pick.snd, hideAll:true, audio:pick.audio}); }).filter(Boolean);
+    pages=[]; base.forEach((b,k)=>{ pages.push(b); if(vs[k]) pages.push(vs[k]); });
+    opts.noAuto=true; }
   if(i===4){ startCourseChat(n); return; }
   if(i===5){ CS().mission={day:n, date:today(), text:d.mission}; markStep(n,5); openDay(n); return; }
   curBook=courseBook(n, pages, opts); curIdx=0; curScores=[];
@@ -2484,6 +2537,7 @@ function playUrls(urls){
 }
 function playCourseLine(){
   const pg=curPage();
+  if(pg.speakText){ stopAudio(); speechSynthesis.cancel(); say(pg.speakText, Math.max(0.8, readRate())); return; }
   const custom = CS().kid && /\{kid\}/.test(pg.raw||'');
   if(custom){ stopAudio(); speechSynthesis.cancel(); say(pg.t, Math.max(0.8, readRate())); return; }
   playUrls([pg.ctxAudio||'', pg.audio]);

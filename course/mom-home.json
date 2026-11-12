@@ -16,35 +16,148 @@
      "k": "좋은 아침! 일어날 시간이야.",
      "x": "Time to wake up",
      "xk": "일어날 시간이야",
-     "snd": "타임투 웨이컵"
+     "snd": "타임투 웨이컵",
+     "pat": "time-to",
+     "vars": [
+      {
+       "t": "Time to get up.",
+       "k": "일어날 시간이야.",
+       "how": "바꿔 끼우기",
+       "x": "Time to get up",
+       "snd": "타임투 게럽"
+      },
+      {
+       "t": "Time to go to bed.",
+       "k": "이제 잘 시간이야.",
+       "how": "반대로",
+       "x": "Time to go",
+       "snd": "타임투 고"
+      },
+      {
+       "t": "It's almost time to wake up, honey.",
+       "k": "우리 아가, 이제 곧 일어날 시간이야.",
+       "how": "부드럽게",
+       "x": "time to wake up",
+       "snd": "타임투 웨이컵"
+      }
+     ]
     },
     {
      "t": "Rise and shine!",
      "k": "자, 일어나자!",
      "x": "Rise and shine",
      "xk": "아침에 깨울 때 쓰는 기분 좋은 말 (해님처럼 반짝!)",
-     "snd": "라이전 샤인"
+     "snd": "라이전 샤인",
+     "pat": "rise-and-shine",
+     "vars": [
+      {
+       "t": "Rise and shine, sleepyhead!",
+       "k": "잠꾸러기야, 일어나자!",
+       "how": "바꿔 끼우기",
+       "x": "Rise and shine",
+       "snd": "라이잰 샤인"
+      },
+      {
+       "t": "Ready to rise and shine?",
+       "k": "일어날 준비 됐어?",
+       "how": "묻는 말로",
+       "x": "rise and shine",
+       "snd": "라이잰 샤인"
+      }
+     ]
     },
     {
      "t": "Did you sleep well?",
      "k": "잘 잤어?",
      "x": "sleep well",
      "xk": "잘 자다",
-     "snd": "디쥬 슬립 웰"
+     "snd": "디쥬 슬립 웰",
+     "pat": "sleep-well",
+     "vars": [
+      {
+       "t": "Did you sleep okay?",
+       "k": "잘 잤어?",
+       "how": "바꿔 끼우기",
+       "x": "sleep okay",
+       "snd": "슬립 오케이"
+      },
+      {
+       "t": "You slept so well!",
+       "k": "정말 푹 잤구나!",
+       "how": "지난 일로",
+       "x": "slept so well",
+       "snd": "슬렙 쏘 웰"
+      },
+      {
+       "t": "Did you have a good dream?",
+       "k": "좋은 꿈 꿨어?",
+       "how": "묻는 말로",
+       "x": "have a good dream",
+       "snd": "해버 굿 드림"
+      }
+     ]
     },
     {
      "t": "Five more minutes? Okay, just five.",
      "k": "5분만 더? 그래, 딱 5분.",
      "x": "Five more minutes",
      "xk": "5분만 더",
-     "snd": "파이브 모어 미닛츠"
+     "snd": "파이브 모어 미닛츠",
+     "pat": "one-more",
+     "vars": [
+      {
+       "t": "Two more minutes, then up!",
+       "k": "2분만 더, 그다음엔 일어나!",
+       "how": "바꿔 끼우기",
+       "x": "Two more minutes",
+       "snd": "투 모어 미니츠"
+      },
+      {
+       "t": "Do you need five more minutes?",
+       "k": "5분 더 필요해?",
+       "how": "묻는 말로",
+       "x": "five more minutes",
+       "snd": "파이브 모어 미니츠"
+      },
+      {
+       "t": "No more minutes, sweetie. Let's get up.",
+       "k": "이제 더는 안 돼, 아가. 일어나자.",
+       "how": "반대로",
+       "x": "No more minutes",
+       "snd": "노 모어 미니츠"
+      }
+     ]
     },
     {
      "t": "Let's get up and open the curtains.",
      "k": "일어나서 커튼 열자.",
      "x": "get up",
      "xk": "(몸을) 일으키다, 일어나다",
-     "snd": "렛츠 게럽"
+     "snd": "렛츠 게럽",
+     "pat": "get-up",
+     "vars": [
+      {
+       "t": "Can you get up now?",
+       "k": "이제 일어날 수 있어?",
+       "how": "묻는 말로",
+       "x": "get up now",
+       "snd": "게럽 나우"
+      },
+      {
+       "t": "You got up all by yourself!",
+       "k": "혼자서 일어났네!",
+       "how": "지난 일로",
+       "x": "got up",
+       "snd": "가럽"
+      },
+      {
+       "t": "Let's get out of bed.",
+       "k": "침대에서 나오자.",
+       "how": "바꿔 끼우기",
+       "x": "get out of bed",
+       "snd": "게라우롭 베드"
+      }
+     ]
     }
    ],
    "words": [
@@ -123,35 +236,155 @@
      "k": "세수하고 와.",
      "x": "wash your face",
      "xk": "세수하다",
-     "snd": "워쉬유어 페이스"
+     "snd": "워쉬유어 페이스",
+     "pat": "wash-your",
+     "vars": [
+      {
+       "t": "Go wash your hands.",
+       "k": "가서 손 씻어.",
+       "how": "바꿔 끼우기",
+       "x": "wash your hands",
+       "snd": "워슈어 핸즈"
+      },
+      {
+       "t": "Did you wash your face?",
+       "k": "세수했어?",
+       "how": "묻는 말로",
+       "x": "Did you wash",
+       "snd": "디쥬 워시"
+      },
+      {
+       "t": "Could you go wash your face, please?",
+       "k": "가서 세수 좀 해 줄래?",
+       "how": "부드럽게",
+       "x": "Could you go",
+       "snd": "쿠쥬 고"
+      }
+     ]
     },
     {
      "t": "Let's brush your teeth.",
      "k": "이 닦자.",
      "x": "brush your teeth",
      "xk": "이를 닦다",
-     "snd": "브러쉬유어 티쓰"
+     "snd": "브러쉬유어 티쓰",
+     "pat": "brush-your",
+     "vars": [
+      {
+       "t": "Let's brush your hair.",
+       "k": "머리 빗자.",
+       "how": "바꿔 끼우기",
+       "x": "brush your hair",
+       "snd": "브러슈어 헤어"
+      },
+      {
+       "t": "Did you brush your teeth?",
+       "k": "이 닦았어?",
+       "how": "묻는 말로",
+       "x": "Did you brush",
+       "snd": "디쥬 브러시"
+      },
+      {
+       "t": "You brushed your teeth so well!",
+       "k": "이 정말 잘 닦았네!",
+       "how": "지난 일로",
+       "x": "brushed your teeth",
+       "snd": "브러쉬츄어 티쓰"
+      }
+     ]
     },
     {
      "t": "Don't forget the back teeth.",
      "k": "어금니도 잊지 말고.",
      "x": "Don't forget",
      "xk": "~ 잊지 마",
-     "snd": "돈포겟"
+     "snd": "돈포겟",
+     "pat": "dont-forget",
+     "vars": [
+      {
+       "t": "Don't forget your tongue.",
+       "k": "혀도 잊지 마.",
+       "how": "바꿔 끼우기",
+       "x": "Don't forget your",
+       "snd": "돈퍼게츄어"
+      },
+      {
+       "t": "Did you forget the back teeth?",
+       "k": "어금니 깜빡했어?",
+       "how": "묻는 말로",
+       "x": "Did you forget",
+       "snd": "디쥬 퍼겟"
+      },
+      {
+       "t": "Remember to brush the back teeth.",
+       "k": "어금니도 꼭 닦아.",
+       "how": "반대로",
+       "x": "Remember to brush",
+       "snd": "리멤버투 브러시"
+      }
+     ]
     },
     {
      "t": "Rinse and spit.",
      "k": "헹구고 뱉어.",
      "x": "Rinse and spit",
      "xk": "(양치 후) 입 헹구고 뱉어",
-     "snd": "린센 스핏"
+     "snd": "린센 스핏",
+     "pat": "rinse-and-spit",
+     "vars": [
+      {
+       "t": "Swish and spit.",
+       "k": "오물오물하고 뱉어.",
+       "how": "바꿔 끼우기",
+       "x": "Swish and spit",
+       "snd": "스위쉬앤 스핏"
+      },
+      {
+       "t": "Don't swallow it. Spit it out.",
+       "k": "삼키지 마. 뱉어.",
+       "how": "반대로",
+       "x": "Spit it out",
+       "snd": "스피리라웃"
+      },
+      {
+       "t": "Can you rinse and spit for me?",
+       "k": "헹구고 뱉어 줄래?",
+       "how": "부드럽게",
+       "x": "rinse and spit",
+       "snd": "린스앤 스핏"
+      }
+     ]
     },
     {
      "t": "Dry your hands with the towel.",
      "k": "수건으로 손 닦아.",
      "x": "Dry your hands",
      "xk": "손의 물기를 닦다",
-     "snd": "드라이유어 핸즈"
+     "snd": "드라이유어 핸즈",
+     "pat": "dry-your",
+     "vars": [
+      {
+       "t": "Dry your face with the towel.",
+       "k": "수건으로 얼굴 닦아.",
+       "how": "바꿔 끼우기",
+       "x": "Dry your face",
+       "snd": "드라이유어 페이스"
+      },
+      {
+       "t": "Did you dry your hands?",
+       "k": "손 닦았어?",
+       "how": "묻는 말로",
+       "x": "Did you dry",
+       "snd": "디쥬 드라이"
+      },
+      {
+       "t": "Your hands are still wet. Let's dry them.",
+       "k": "손이 아직 젖었네. 같이 닦자.",
+       "how": "부드럽게",
+       "x": "dry them",
+       "snd": "드라이 뎀"
+      }
+     ]
     }
    ],
    "words": [
@@ -235,35 +468,155 @@
      "k": "옷 입자.",
      "x": "get dressed",
      "xk": "옷을 입다",
-     "snd": "렛츠 겟드레스트"
+     "snd": "렛츠 겟드레스트",
+     "pat": "get-dressed",
+     "vars": [
+      {
+       "t": "Are you dressed yet?",
+       "k": "옷 다 입었어?",
+       "how": "묻는 말로",
+       "x": "Are you dressed",
+       "snd": "아유 드레스트"
+      },
+      {
+       "t": "Let's get undressed for your bath.",
+       "k": "목욕하게 옷 벗자.",
+       "how": "반대로",
+       "x": "get undressed",
+       "snd": "게런드레스트"
+      },
+      {
+       "t": "You got dressed so fast!",
+       "k": "옷을 엄청 빨리 입었네!",
+       "how": "지난 일로",
+       "x": "got dressed",
+       "snd": "갓 드레스트"
+      }
+     ]
     },
     {
      "t": "What do you want to wear today?",
      "k": "오늘 뭐 입고 싶어?",
      "x": "want to wear",
      "xk": "입고 싶다",
-     "snd": "왓두유 워너 웨어"
+     "snd": "왓두유 워너 웨어",
+     "pat": "want-to",
+     "vars": [
+      {
+       "t": "What do you want to eat today?",
+       "k": "오늘 뭐 먹고 싶어?",
+       "how": "바꿔 끼우기",
+       "x": "want to eat",
+       "snd": "워너 잇"
+      },
+      {
+       "t": "Which one would you like to wear?",
+       "k": "어떤 거 입고 싶어?",
+       "how": "부드럽게",
+       "x": "like to wear",
+       "snd": "라익투 웨어"
+      },
+      {
+       "t": "What did you wear yesterday?",
+       "k": "어제 뭐 입었더라?",
+       "how": "지난 일로",
+       "x": "did you wear",
+       "snd": "디쥬 웨어"
+      }
+     ]
     },
     {
      "t": "Put on your socks.",
      "k": "양말 신어.",
      "x": "Put on",
      "xk": "(옷·양말·신발을) 입다·신다",
-     "snd": "푸론 유어 삭스"
+     "snd": "푸론 유어 삭스",
+     "pat": "put-on",
+     "vars": [
+      {
+       "t": "Put on your pants.",
+       "k": "바지 입어.",
+       "how": "바꿔 끼우기",
+       "x": "Put on your",
+       "snd": "푸로뉴어"
+      },
+      {
+       "t": "Take off your pajamas.",
+       "k": "잠옷 벗어.",
+       "how": "반대로",
+       "x": "Take off your",
+       "snd": "테이커퓨어"
+      },
+      {
+       "t": "Can you put on your socks?",
+       "k": "양말 신을 수 있어?",
+       "how": "묻는 말로",
+       "x": "put on your",
+       "snd": "푸로뉴어"
+      }
+     ]
     },
     {
      "t": "Oops, it's inside out.",
      "k": "어머, 옷이 뒤집혔네.",
      "x": "inside out",
      "xk": "안팎이 뒤집힌",
-     "snd": "잇츠 인사이다웃"
+     "snd": "잇츠 인사이다웃",
+     "pat": "inside-out",
+     "vars": [
+      {
+       "t": "Oops, it's backwards.",
+       "k": "어머, 앞뒤가 바뀌었네.",
+       "how": "바꿔 끼우기",
+       "x": "it's backwards",
+       "snd": "잇츠 백워즈"
+      },
+      {
+       "t": "Oops, it's upside down.",
+       "k": "어머, 거꾸로네.",
+       "how": "바꿔 끼우기",
+       "x": "it's upside down",
+       "snd": "잇츠 업사이다운"
+      },
+      {
+       "t": "Is it inside out?",
+       "k": "이거 뒤집혔어?",
+       "how": "묻는 말로",
+       "x": "inside out",
+       "snd": "인사이다웃"
+      }
+     ]
     },
     {
      "t": "Can you button it up by yourself?",
      "k": "혼자 단추 잠글 수 있어?",
      "x": "by yourself",
      "xk": "혼자서",
-     "snd": "버트닛업 바이유어셀프"
+     "snd": "버트닛업 바이유어셀프",
+     "pat": "by-yourself",
+     "vars": [
+      {
+       "t": "Can you zip it up by yourself?",
+       "k": "지퍼 혼자 올릴 수 있어?",
+       "how": "바꿔 끼우기",
+       "x": "zip it up",
+       "snd": "지피럽"
+      },
+      {
+       "t": "You did it by yourself!",
+       "k": "혼자서 해냈네!",
+       "how": "지난 일로",
+       "x": "did it by yourself",
+       "snd": "디릿 바이유어셀프"
+      },
+      {
+       "t": "Do you need some help?",
+       "k": "좀 도와줄까?",
+       "how": "반대로",
+       "x": "need some help",
+       "snd": "니썸 헬프"
+      }
+     ]
     }
    ],
    "words": [
@@ -347,35 +700,155 @@
      "k": "아침 다 됐다! 와서 먹어.",
      "x": "Come and eat",
      "xk": "와서 먹어",
-     "snd": "커먼 잇"
+     "snd": "커먼 잇",
+     "pat": "come-and",
+     "vars": [
+      {
+       "t": "Come and sit.",
+       "k": "와서 앉아.",
+       "how": "바꿔 끼우기",
+       "x": "Come and sit",
+       "snd": "커맨 씻"
+      },
+      {
+       "t": "Can you come and eat, please?",
+       "k": "와서 밥 먹을래?",
+       "how": "부드럽게",
+       "x": "come and eat",
+       "snd": "커맨 잇"
+      },
+      {
+       "t": "Are you coming to eat?",
+       "k": "밥 먹으러 오는 거지?",
+       "how": "묻는 말로",
+       "x": "coming to eat",
+       "snd": "커밍투 잇"
+      }
+     ]
     },
     {
      "t": "Wash your hands first.",
      "k": "손 먼저 씻고.",
      "x": "Wash your hands",
      "xk": "손을 씻다",
-     "snd": "워쉬유어 핸즈"
+     "snd": "워쉬유어 핸즈",
+     "pat": "wash-your",
+     "vars": [
+      {
+       "t": "Did you wash your hands?",
+       "k": "손 씻었어?",
+       "how": "묻는 말로",
+       "x": "wash your hands",
+       "snd": "워슈어 핸즈"
+      },
+      {
+       "t": "Let's wash our hands together.",
+       "k": "우리 같이 손 씻자.",
+       "how": "부드럽게",
+       "x": "wash our hands",
+       "snd": "워시아워 핸즈"
+      },
+      {
+       "t": "You washed your hands already? Good job!",
+       "k": "벌써 손 씻었어? 잘했어!",
+       "how": "지난 일로",
+       "x": "washed your hands",
+       "snd": "워쉬츄어 핸즈"
+      }
+     ]
     },
     {
      "t": "Sit down at the table, please.",
      "k": "식탁에 앉아.",
      "x": "Sit down",
      "xk": "앉다",
-     "snd": "씻다운 앳더 테이블"
+     "snd": "씻다운 앳더 테이블",
+     "pat": "sit-down",
+     "vars": [
+      {
+       "t": "Stand up, please. We're done.",
+       "k": "일어나자. 다 먹었네.",
+       "how": "반대로",
+       "x": "Stand up",
+       "snd": "스탠덥"
+      },
+      {
+       "t": "Can you sit down, please?",
+       "k": "앉아 줄래?",
+       "how": "묻는 말로",
+       "x": "sit down",
+       "snd": "씻다운"
+      },
+      {
+       "t": "Sit still at the table, please.",
+       "k": "식탁에 가만히 앉아 있자.",
+       "how": "바꿔 끼우기",
+       "x": "Sit still",
+       "snd": "씻 스틸"
+      }
+     ]
     },
     {
      "t": "Just one more bite.",
      "k": "한 입만 더 먹자.",
      "x": "one more bite",
      "xk": "한 입 더",
-     "snd": "저스트 원모어 바잇"
+     "snd": "저스트 원모어 바잇",
+     "pat": "one-more",
+     "vars": [
+      {
+       "t": "Just two more bites.",
+       "k": "딱 두 입만 더.",
+       "how": "바꿔 끼우기",
+       "x": "two more bites",
+       "snd": "투 모어 바잇츠"
+      },
+      {
+       "t": "Can you take one more bite?",
+       "k": "한 입만 더 먹을 수 있어?",
+       "how": "묻는 말로",
+       "x": "take one more bite",
+       "snd": "테익 원모어 바잇"
+      },
+      {
+       "t": "You ate one more bite! Great job.",
+       "k": "한 입 더 먹었네! 잘했어.",
+       "how": "지난 일로",
+       "x": "ate one more bite",
+       "snd": "에잇 원모어 바잇"
+      }
+     ]
     },
     {
      "t": "Are you full?",
      "k": "배불러?",
      "x": "Are you full",
      "xk": "배부르니?",
-     "snd": "아유 풀"
+     "snd": "아유 풀",
+     "pat": "are-you",
+     "vars": [
+      {
+       "t": "Are you still hungry?",
+       "k": "아직 배고파?",
+       "how": "반대로",
+       "x": "Are you still hungry",
+       "snd": "아유 스틸 헝그리"
+      },
+      {
+       "t": "I'm full. How about you?",
+       "k": "엄마는 배불러. 너는?",
+       "how": "바꿔 끼우기",
+       "x": "I'm full",
+       "snd": "아임 풀"
+      },
+      {
+       "t": "Were you full at lunch?",
+       "k": "점심때 배불렀어?",
+       "how": "지난 일로",
+       "x": "Were you full",
+       "snd": "워유 풀"
+      }
+     ]
     }
    ],
    "words": [
@@ -474,35 +947,155 @@
      "k": "5분 뒤에 나간다.",
      "x": "leaving in",
      "xk": "~ 뒤에 나간다",
-     "snd": "위어 리빙인 파이브 미닛츠"
+     "snd": "위어 리빙인 파이브 미닛츠",
+     "pat": "leaving-in",
+     "vars": [
+      {
+       "t": "We're leaving in two minutes.",
+       "k": "2분 있다가 나갈 거야.",
+       "how": "바꿔 끼우기",
+       "x": "leaving in two",
+       "snd": "리빙인 투"
+      },
+      {
+       "t": "When are we leaving?",
+       "k": "우리 언제 나가?",
+       "how": "묻는 말로",
+       "x": "When are we leaving",
+       "snd": "웨나위 리빙"
+      },
+      {
+       "t": "We're leaving soon, okay?",
+       "k": "우리 곧 나갈 거야, 알았지?",
+       "how": "부드럽게",
+       "x": "leaving soon",
+       "snd": "리빙 쑨"
+      }
+     ]
     },
     {
      "t": "Put on your shoes.",
      "k": "신발 신어.",
      "x": "Put on your shoes",
      "xk": "신발을 신다",
-     "snd": "푸론유어 슈즈"
+     "snd": "푸론유어 슈즈",
+     "pat": "put-on",
+     "vars": [
+      {
+       "t": "Put on your hat.",
+       "k": "모자 써.",
+       "how": "바꿔 끼우기",
+       "x": "Put on your hat",
+       "snd": "푸로뉴어 햇"
+      },
+      {
+       "t": "Take off your shoes.",
+       "k": "신발 벗어.",
+       "how": "반대로",
+       "x": "Take off your shoes",
+       "snd": "테이커퓨어 슈즈"
+      },
+      {
+       "t": "Did you put on your shoes?",
+       "k": "신발 신었어?",
+       "how": "묻는 말로",
+       "x": "Did you put on",
+       "snd": "디쥬 푸론"
+      }
+     ]
     },
     {
      "t": "Grab your jacket. It's cold outside.",
      "k": "재킷 챙겨. 밖에 추워.",
      "x": "Grab your jacket",
      "xk": "재킷을 챙기다",
-     "snd": "그랩유어 재킷"
+     "snd": "그랩유어 재킷",
+     "pat": "grab-your",
+     "vars": [
+      {
+       "t": "Grab your hat.",
+       "k": "모자 챙겨.",
+       "how": "바꿔 끼우기",
+       "x": "Grab your hat",
+       "snd": "그래뷰어 햇"
+      },
+      {
+       "t": "Did you grab your jacket?",
+       "k": "겉옷 챙겼어?",
+       "how": "묻는 말로",
+       "x": "grab your jacket",
+       "snd": "그래뷰어 재킷"
+      },
+      {
+       "t": "You don't need a jacket. It's warm.",
+       "k": "겉옷 필요 없어. 따뜻해.",
+       "how": "반대로",
+       "x": "don't need a jacket",
+       "snd": "돈 니러 재킷"
+      }
+     ]
     },
     {
      "t": "Did you pack your water bottle?",
      "k": "물병 챙겼어?",
      "x": "pack your",
      "xk": "(가방에) ~를 챙기다",
-     "snd": "디쥬 팩유어 워러 바를"
+     "snd": "디쥬 팩유어 워러 바를",
+     "pat": "pack-your",
+     "vars": [
+      {
+       "t": "Did you pack your snack?",
+       "k": "간식 챙겼어?",
+       "how": "바꿔 끼우기",
+       "x": "pack your snack",
+       "snd": "패큐어 스낵"
+      },
+      {
+       "t": "Let's pack your bag together.",
+       "k": "가방 같이 싸자.",
+       "how": "부드럽게",
+       "x": "pack your bag",
+       "snd": "패큐어 백"
+      },
+      {
+       "t": "Unpack your bag, please.",
+       "k": "가방 정리하자.",
+       "how": "반대로",
+       "x": "Unpack your bag",
+       "snd": "언패큐어 백"
+      }
+     ]
     },
     {
      "t": "Hold my hand when we cross the street.",
      "k": "길 건널 때 손 잡아.",
      "x": "Hold my hand",
      "xk": "손 잡아",
-     "snd": "홀마이 핸드"
+     "snd": "홀마이 핸드",
+     "pat": "hold-my-hand",
+     "vars": [
+      {
+       "t": "Hold my hand in the parking lot.",
+       "k": "주차장에선 엄마 손 잡아.",
+       "how": "바꿔 끼우기",
+       "x": "Hold my hand",
+       "snd": "홀마이 핸드"
+      },
+      {
+       "t": "Can you hold my hand, please?",
+       "k": "엄마 손 잡아 줄래?",
+       "how": "부드럽게",
+       "x": "hold my hand",
+       "snd": "홀마이 핸드"
+      },
+      {
+       "t": "You can let go now.",
+       "k": "이제 손 놔도 돼.",
+       "how": "반대로",
+       "x": "let go now",
+       "snd": "렛고 나우"
+      }
+     ]
     }
    ],
    "words": [
@@ -586,35 +1179,155 @@
      "k": "학교에서 좋은 하루 보내!",
      "x": "Have a great day",
      "xk": "좋은 하루 보내",
-     "snd": "해버 그레잇 데이"
+     "snd": "해버 그레잇 데이",
+     "pat": "have-a",
+     "vars": [
+      {
+       "t": "Have a fun day!",
+       "k": "재밌게 보내!",
+       "how": "바꿔 끼우기",
+       "x": "Have a fun day",
+       "snd": "해버 펀 데이"
+      },
+      {
+       "t": "Did you have a great day?",
+       "k": "오늘 좋은 하루 보냈어?",
+       "how": "지난 일로",
+       "x": "Did you have",
+       "snd": "디쥬 해브"
+      },
+      {
+       "t": "I hope you have a great day.",
+       "k": "오늘 좋은 하루 보내길 바라.",
+       "how": "부드럽게",
+       "x": "hope you have",
+       "snd": "호퓨 해브"
+      }
+     ]
     },
     {
      "t": "Listen to your teacher.",
      "k": "선생님 말씀 잘 들어.",
      "x": "Listen to",
      "xk": "~의 말을 (귀 기울여) 듣다",
-     "snd": "리쓴투 유어 티처"
+     "snd": "리쓴투 유어 티처",
+     "pat": "listen-to",
+     "vars": [
+      {
+       "t": "Listen to your friends.",
+       "k": "친구들 말도 잘 들어.",
+       "how": "바꿔 끼우기",
+       "x": "Listen to your",
+       "snd": "리쓴투 유어"
+      },
+      {
+       "t": "Did you listen to your teacher today?",
+       "k": "오늘 선생님 말씀 잘 들었어?",
+       "how": "지난 일로",
+       "x": "Did you listen",
+       "snd": "디쥬 리쓴"
+      },
+      {
+       "t": "Try to listen to your teacher, okay?",
+       "k": "선생님 말씀 잘 들어 보자, 알았지?",
+       "how": "부드럽게",
+       "x": "Try to listen",
+       "snd": "트라이투 리쓴"
+      }
+     ]
     },
     {
      "t": "I'll pick you up at three.",
      "k": "3시에 데리러 갈게.",
      "x": "pick you up",
      "xk": "데리러 가다",
-     "snd": "아일 픽큐업"
+     "snd": "아일 픽큐업",
+     "pat": "pick-you-up",
+     "vars": [
+      {
+       "t": "I'll drop you off at nine.",
+       "k": "아홉 시에 데려다줄게.",
+       "how": "반대로",
+       "x": "drop you off",
+       "snd": "드라퓨 어프"
+      },
+      {
+       "t": "Who's picking you up today?",
+       "k": "오늘 누가 데리러 와?",
+       "how": "묻는 말로",
+       "x": "picking you up",
+       "snd": "피킹유 업"
+      },
+      {
+       "t": "Daddy will pick you up at three.",
+       "k": "세 시에 아빠가 데리러 올 거야.",
+       "how": "바꿔 끼우기",
+       "x": "will pick you up",
+       "snd": "윌 피큐 업"
+      }
+     ]
     },
     {
      "t": "Give me a hug.",
      "k": "안아 줘.",
      "x": "Give me a hug",
      "xk": "안아 줘",
-     "snd": "깁미어 허그"
+     "snd": "깁미어 허그",
+     "pat": "give-me-a",
+     "vars": [
+      {
+       "t": "Give me a kiss.",
+       "k": "뽀뽀해 줘.",
+       "how": "바꿔 끼우기",
+       "x": "Give me a kiss",
+       "snd": "기미어 키스"
+      },
+      {
+       "t": "Can I have a hug?",
+       "k": "한 번 안아 줄래?",
+       "how": "묻는 말로",
+       "x": "have a hug",
+       "snd": "해버 허그"
+      },
+      {
+       "t": "Give me a high five!",
+       "k": "하이파이브!",
+       "how": "바꿔 끼우기",
+       "x": "high five",
+       "snd": "기미어 하이파이브"
+      }
+     ]
     },
     {
      "t": "See you later! Love you.",
      "k": "이따 봐! 사랑해.",
      "x": "See you later",
      "xk": "이따 봐",
-     "snd": "씨유 레이러"
+     "snd": "씨유 레이러",
+     "pat": "see-you",
+     "vars": [
+      {
+       "t": "See you after school!",
+       "k": "끝나고 보자!",
+       "how": "바꿔 끼우기",
+       "x": "See you after school",
+       "snd": "씨유 애프터 스쿨"
+      },
+      {
+       "t": "See you soon, sweetie.",
+       "k": "이따 금방 보자, 우리 아가.",
+       "how": "부드럽게",
+       "x": "See you soon",
+       "snd": "씨유 쑨"
+      },
+      {
+       "t": "Did you miss me?",
+       "k": "엄마 보고 싶었어?",
+       "how": "지난 일로",
+       "x": "Did you miss me",
+       "snd": "디쥬 미스미"
+      }
+     ]
     }
    ],
    "words": [
