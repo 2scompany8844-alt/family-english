@@ -2139,10 +2139,15 @@ document.addEventListener('keydown', e=>{ if(e.key==='Enter' && document.activeE
    ============================================================ */
 const CLIP_KEY_LS='readalong.clipkey';
 function grabKey(){
-  const m=location.hash.match(/k=([A-Za-z0-9_-]+)/);
-  if(!m) return;
-  try{ localStorage.setItem(CLIP_KEY_LS, m[1]); }catch(e){}
-  history.replaceState(null, '', location.pathname + location.search);   // 주소창에서 키 지우기
+  // 가족 링크: #k=<클립 키>&ak=<Claude API 키>  (# 뒤는 서버로 안 감, 저장 후 주소창에서 지움)
+  const h=new URLSearchParams(location.hash.slice(1));
+  const k=h.get('k'), ak=h.get('ak');
+  if(!k && !ak) return;
+  try{
+    if(k) localStorage.setItem(CLIP_KEY_LS, k);
+    if(ak && /^sk-ant-/.test(ak)) localStorage.setItem('readalong.apikey', ak);
+  }catch(e){}
+  history.replaceState(null, '', location.pathname + location.search);
 }
 grabKey();
 window.addEventListener('hashchange', grabKey);   // 앱이 열린 채로 가족 링크를 눌렀을 때
