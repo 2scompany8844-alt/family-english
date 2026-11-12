@@ -346,6 +346,36 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 .chatbar .btn-mic svg{width:24px; height:24px}
 .chatbar .cbtn{width:46px; height:46px; flex-shrink:0; font-size:13px; font-weight:700}
 .hintline{max-width:520px; margin:0 auto 8px; font-size:14px; color:var(--ink-2); background:var(--surface); border-radius:12px; padding:8px 12px}
+.cmap{display:grid; grid-template-columns:repeat(5,1fr); gap:8px}
+.cday{aspect-ratio:1; border-radius:16px; background:var(--surface); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; padding:4px; text-align:center; min-width:0}
+.cday b{font-size:13px; font-weight:700; font-variant-numeric:tabular-nums}
+.cday span{font-size:10px; color:var(--ink-2); line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:100%}
+.cday i{font-style:normal; font-size:14px; line-height:1; color:var(--acc-ink)}
+.cday.today{outline:2.5px solid var(--acc); outline-offset:-2.5px}
+.cday.lock{opacity:.4}
+.cday.rev{background:var(--acc-soft)}
+.legend{display:flex; gap:12px; font-size:12px; color:var(--ink-2); margin:10px 0 0}
+.kidrow{display:flex; align-items:center; gap:8px; background:var(--surface); border-radius:var(--r-bubble); padding:10px 12px; margin:12px 0}
+.kidrow span{flex:1; font-size:14px; color:var(--ink-2)}
+.kidrow b{color:var(--ink)}
+.kidrow button{font-size:13px; font-weight:700; padding:6px 12px; border-radius:999px; background:var(--bg)}
+.steps{display:flex; gap:6px; margin:4px 0 18px}
+.steps i{flex:1; height:6px; border-radius:6px; background:var(--surface)}
+.steps i.done{background:var(--acc)}
+.steps i.now{background:var(--acc-soft)}
+.stepcard{background:var(--surface); border-radius:var(--r-card); padding:22px 18px; display:flex; flex-direction:column; gap:10px}
+.stepcard .no{font-size:13px; font-weight:700; color:var(--acc-ink)}
+.stepcard h3{margin:0; font-size:22px; font-weight:700; letter-spacing:-.02em}
+.stepcard p{margin:0; font-size:15px; color:var(--ink-2); line-height:1.6}
+.wchips{display:flex; flex-wrap:wrap; gap:6px}
+.wchips button{background:var(--bg); border-radius:999px; padding:7px 12px; font-size:14px; font-weight:600}
+.wchips button small{color:var(--ink-2); font-weight:500; margin-left:4px}
+.mission{background:var(--acc-soft); border-radius:var(--r-bubble); padding:14px 16px; font-size:16px; font-weight:600; line-height:1.5}
+.ctx{font-size:15px; color:var(--ink-2); margin:12px 0 0; min-height:0}
+.mustrow{display:flex; flex-wrap:wrap; gap:6px; margin:-4px 0 12px}
+.mustrow span{font-size:12px; font-weight:600; padding:5px 10px; border-radius:999px; background:var(--surface); color:var(--ink-2)}
+.mustrow span.on{background:var(--acc); color:var(--on-acc)}
+.passcard{align-self:stretch; background:var(--acc-soft); border-radius:var(--r-bubble); padding:14px 16px; display:flex; flex-direction:column; gap:10px; font-weight:700}
 .lvtag{font-size:12px; font-weight:600; color:var(--ink-3); margin-top:2px}
 </style>
 </head>
@@ -436,6 +466,33 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
   <div class="clist" id="clipList"></div>
 </section>
 
+<!-- ========== 코스: 상황 지도 ========== -->
+<section id="s-course" class="screen">
+  <div class="subtop">
+    <div class="t" id="crsRole">엄마 영어<b id="crsTitle">30일 완성 엄마 영어</b></div>
+    <button class="xbtn" onclick="go('home');drawHome()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <div class="eyebrow" id="crsSub"></div>
+  <div class="tline"><i id="crsLine" style="width:0%"></i></div>
+  <div id="crsMission"></div>
+  <button class="hero" id="crsGo"></button>
+  <div class="kidrow"><span>아이 부르는 이름 · <b id="kidName"></b></span><button onclick="editKid()">바꾸기</button></div>
+  <div class="sech" style="margin-top:18px"><h2>상황 지도</h2><span id="crsCount"></span></div>
+  <div class="cmap" id="crsMap"></div>
+  <div class="legend"><span>○ 배움</span><span>◐ 익숙</span><span>● 마스터</span><span>🔒 곧 열려요</span></div>
+  <p class="sc-note">이름은 이 휴대폰에만 저장되고, 서버나 AI로 보내지 않아요.</p>
+</section>
+
+<!-- ========== 코스: 하루 6단계 ========== -->
+<section id="s-day" class="screen">
+  <div class="rtop">
+    <button class="xbtn" onclick="openCourse()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+    <div style="flex:1"><b id="dayTitle" style="font-size:17px"></b><div class="eyebrow" id="daySub"></div></div>
+  </div>
+  <div class="steps" id="daySteps"></div>
+  <div class="stepcard" id="stepCard"></div>
+</section>
+
 <!-- ========== AI 대화: 장면 고르기 ========== -->
 <section id="s-talk" class="screen">
   <div class="subtop">
@@ -461,6 +518,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
     <div class="t"><b id="chatTitle"></b><span id="chatSub"></span></div>
     <button class="chip phone" id="phoneBtn" onclick="togglePhone()">📞 전화 모드</button>
   </div>
+  <div class="mustrow" id="mustRow" hidden></div>
   <div class="chatlog" id="chatLog"></div>
   <div class="chatbar">
     <div class="hintline" id="hintLine" hidden></div>
@@ -485,9 +543,10 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 
   <div class="speakpanel">
     <span class="saynow" id="sayNow">이제 말해 보세요</span>
+    <p class="ctx" id="ctxLine" hidden></p>
     <p class="sentence en" id="sentence"></p>
     <p class="ko hide" id="koText"></p>
-    <button class="reveal" id="revealBtn" onclick="revealKey()" hidden>정답 보기</button>
+    <button class="reveal" id="revealBtn" onclick="revealKey(true)" hidden>정답 보기</button>
     <div class="xcard" id="xCard" hidden></div>
     <button class="ko-toggle" onclick="toggleKo()" id="koBtn">뜻 보기</button>
     <div class="lvtag" id="lvTag"></div>
@@ -858,7 +917,7 @@ function fill(s, kid){ kid=kid||KID; return String(s).replace(/\{name\}/g, kid.e
    5. 화면 전환
    ============================================================ */
 function go(name){
-  speechSynthesis.cancel(); stopMic(); pauseClip();
+  speechSynthesis.cancel(); stopMic(); pauseClip(); stopAudio();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+name).classList.add('on');
   window.scrollTo(0,0);
@@ -899,6 +958,7 @@ function say(text, rate){
 }
 function speak(slow){
   if(curBook && curBook.clip){ playSeg(); return; }
+  if(curBook && curBook.course){ playCourseLine(); return; }
   speechSynthesis.cancel();
   const txt=fill(curPage().t);
   const spans=[...document.querySelectorAll('#sentence .w')];
@@ -944,7 +1004,7 @@ function toggleMic(){
   startMic();
 }
 function startMic(){
-  speechSynthesis.cancel(); pauseClip(); revealKey();
+  speechSynthesis.cancel(); pauseClip(); stopAudio(); if(!curPage().hideAll) revealKey();
   rec=new SR();
   rec.lang='en-US'; rec.interimResults=true; rec.maxAlternatives=3; rec.continuous=false;
   const btn=document.getElementById('micBtn'), heard=document.getElementById('heard'), ms=document.getElementById('micState');
@@ -1040,7 +1100,8 @@ function grade(said){
   document.getElementById('resultTxt').innerHTML=msg+'<small>'+sub+'</small>';
 
   if(curBook.diag) diagScores[curIdx]=Math.max(diagScores[curIdx]||0, r.acc);
-  if(curBook.clip){ tries[triesKey()]=(tries[triesKey()]||0)+1; drawTries();
+  if(curPage().hideAll){ if(!hinted && r.acc>=80 && curPage().key) courseOk(curPage().key); revealKey(); }
+  if(curBook.clip || curBook.tries){ tries[triesKey()]=(tries[triesKey()]||0)+1; drawTries();
     document.getElementById('micState').textContent = (tries[triesKey()]>=TRIES) ? '3번 다 했어요! 다음 문장으로 가 볼까요?' : (TRIES-tries[triesKey()])+'번 더 따라 해 보세요'; }
   if(!pageScored){
     pageScored=true;
@@ -1068,7 +1129,7 @@ async function openBook(id){
   } else releaseScenes();
   renderPage();
 }
-function exitBook(){ releaseScenes(); if(curBook && curBook.diag){ go('home'); drawHome(); return; } if(curBook && curBook.clip){ openClips(); } else { go('home'); drawHome(); } }
+function exitBook(){ releaseScenes(); stopAudio(); if(curBook && curBook.onExit){ curBook.onExit(); return; } if(curBook && curBook.diag){ go('home'); drawHome(); return; } if(curBook && curBook.clip){ openClips(); } else { go('home'); drawHome(); } }
 
 function renderPage(){
   pageScored=false;
@@ -1095,7 +1156,7 @@ function renderPage(){
   const segs=document.getElementById('segs'), n=curBook.pages.length;
   segs.style.gap = n>12 ? '3px' : '6px';
   segs.innerHTML = curBook.pages.map((_,i)=>'<i class="'+(i<curIdx?'done':(i===curIdx?'now':''))+'"></i>').join('');
-  setTimeout(()=>speak(), 400);
+  if(!curBook.noAuto) setTimeout(()=>speak(), 400);
 }
 function renderKo(){
   document.getElementById('koText').classList.toggle('hide', !showKo);
@@ -1104,7 +1165,7 @@ function renderKo(){
 function toggleKo(){ showKo=!showKo; renderKo(); }
 function nextPage(){
   speechSynthesis.cancel(); stopMic();
-  if(curIdx<curBook.pages.length-1){ curIdx++; renderPage(); } else if(curBook.diag) finishDiag(); else startQuiz();
+  if(curIdx<curBook.pages.length-1){ curIdx++; renderPage(); } else if(curBook.diag) finishDiag(); else if(curBook.onDone) curBook.onDone(); else startQuiz();
 }
 function prevPage(){
   speechSynthesis.cancel(); stopMic();
@@ -1560,7 +1621,7 @@ function renderScene(){
   const src = photo || built;
   sc.classList.toggle('hasimg', !!src);
   sc.innerHTML = src ? '<img src="'+src+'" alt="">' : '<span>'+p.e+'</span>';
-  if(!curBook.wink && !curBook.diag){
+  if(!curBook.wink && !curBook.diag && !curBook.course){
     const btn=document.createElement('button');
     btn.className='photoBtn';
     btn.textContent = photo? '사진 지우기' : '📷 사진 넣기';
@@ -1779,8 +1840,8 @@ async function drawDailyLine(hero, next){
     '<span class="hbtn">장면 보고 따라 하기</span></button>';
   document.getElementById('dailyBtn').onclick=()=>openClip(pick.c.id, pick.i);
   next.hidden=false;
-  next.innerHTML='<button class="nbook" onclick="openClips()"><div class="nc">🎬</div><div><b>클립 전체</b><span>'+list.length+'개 장면</span></div></button>'+
-    '<button class="nbook" onclick="openClip(\''+pick.c.id+'\',0)"><div class="nc">▶</div><div><b>'+esc(pick.c.title)+'</b><span>처음부터</span></div></button>';
+  next.innerHTML='<button class="nbook" onclick="openCourse()"><div class="nc">🧑‍🍼</div><div><b>30일 엄마 영어</b><span>집 편 · 코스</span></div></button>'+
+    '<button class="nbook" onclick="openClips()"><div class="nc">🎬</div><div><b>클립 전체</b><span>'+list.length+'개 장면</span></div></button>';
 }
 function clipDoneToday(){ return Object.entries(DB.books).filter(([id,r])=>id.indexOf('clip_')===0 && r.last===today()).length; }
 function drawToday(){
@@ -1929,7 +1990,7 @@ function resetOne(){
 
 /* ---------- 쇼츠식 루틴: 빈칸 → 정답 → 표현 카드 → 3번 따라 하기 ---------- */
 const TRIES=3;
-let keyIdx=[], revealed=true, tries={};
+let keyIdx=[], revealed=true, tries={}, hinted=false;
 function wnorm(w){ return String(w).toLowerCase().replace(/[^a-z0-9']/g,''); }
 function findKey(words, x){
   const xs=String(x||'').split(/\s+/).map(wnorm).filter(Boolean), ws=words.map(wnorm);
@@ -1938,18 +1999,20 @@ function findKey(words, x){
 }
 function setupKey(p){
   const spans=[...document.querySelectorAll('#sentence .w')];
-  keyIdx = (curBook.clip && p.x) ? findKey(spans.map(s=>s.dataset.raw), p.x) : [];
-  revealed = !keyIdx.length;
+  keyIdx = p.hideAll ? spans.map((_,i)=>i) : ((curBook.clip || curBook.course) && p.x) ? findKey(spans.map(s=>s.dataset.raw), p.x) : [];
+  revealed = !keyIdx.length; hinted=false;
+  const cx=document.getElementById('ctxLine'); cx.hidden=!p.ctx; cx.textContent = p.ctx ? '🧒 '+p.ctx : '';
   keyIdx.forEach(i=>spans[i].classList.add('blank'));
   document.getElementById('revealBtn').hidden = revealed;
-  document.getElementById('sayNow').textContent = revealed ? '이제 말해 보세요' : '빈칸에 뭐라고 했을까요?';
+  document.getElementById('sayNow').textContent = revealed ? '이제 말해 보세요' : (p.hideAll ? '영어로 말해 보세요' : '빈칸에 뭐라고 했을까요?');
   const xc=document.getElementById('xCard');
   xc.hidden=true;
   xc.innerHTML = p.x ? '<b>'+esc(p.x)+'</b><span>'+esc(p.xk||'')+'</span>'+(p.snd?'<span class="snd">소리 · '+esc(p.snd)+'</span>':'') : '';
   drawTries();
 }
-function revealKey(){
+function revealKey(byHint){
   if(revealed) return;
+  if(byHint) hinted=true;
   revealed=true;
   const spans=[...document.querySelectorAll('#sentence .w')];
   keyIdx.forEach(i=>{ spans[i].classList.remove('blank'); spans[i].classList.add('key'); });
@@ -1960,7 +2023,7 @@ function revealKey(){
 function triesKey(){ return curBook.id+'#'+curIdx; }
 function drawTries(){
   const el=document.getElementById('tries');
-  el.hidden = !curBook.clip;
+  el.hidden = !(curBook.clip || curBook.tries);
   const n=tries[triesKey()]||0;
   el.innerHTML = Array.from({length:TRIES},(_,i)=>'<i class="'+(i<n?'on':'')+'"></i>').join('');
   el.title = n>=TRIES ? '3번 다 했어요' : (TRIES-n)+'번 더 따라 해 보세요';
@@ -2062,21 +2125,37 @@ function openTalk(){
 }
 function sysPrompt(sc){
   const L=myLevel();
+  if(sc.course) return 'You are role-playing a young child so a Korean parent can practice everyday English at home.\n'+
+    'You are: '+sc.course.kid+'. Speak like a 5-year-old: very short, simple sentences, natural and a little playful. React to what the parent says and stay in the scene. Call the parent "Mommy".\n'+
+    'Scene: '+sc.course.goal+'. Learner level: Lv.'+L+' of 8.\n'+
+    'The parent is practicing these target expressions: '+sc.course.must.map(m=>'"'+m+'"').join(', ')+'.\n'+
+    'Fill these fields:\n'+
+    '- reply: your next line as the child (one or two short sentences)\n'+
+    '- ko: natural Korean translation of your reply\n'+
+    '- fix: the learner\'s latest message corrected. Change it ONLY if it has a grammar mistake or would sound unnatural to a native-speaking parent; if it is already correct and natural, return it exactly unchanged. Never rewrite a correct sentence just for style\n'+
+    '- why: one short Korean sentence about the mistake you fixed, or an empty string if nothing changed\n'+
+    '- hint: one thing the parent could say next that uses a target expression not used yet\n'+
+    '- used: the target expressions (copied exactly from the list) that the learner\'s latest message used, allowing small natural variations; empty list if none\n'+
+    'Spoken words only: no stage directions, no asterisks, no emojis (your reply is read aloud).\n'+
+    'Keep it wholesome and age-appropriate.';
   return 'You are a friendly English conversation partner for a Korean learner.\n'+
     'Learner level: Lv.'+L+' of 8 (1-2 = a few simple words, 3-4 = basic daily sentences, 5-6 = phrasal verbs and idioms, 7-8 = near-native).\n'+
     'Role-play: you are '+sc.role+'. Scene: '+sc.scene+'.\n'+
     'Stay in character. Reply with one or two short spoken sentences sized to the learner\'s level, and usually end with a question so the conversation keeps going.\n'+
     'Also fill these fields for the learner\'s latest message:\n'+
-    '- fix: how a native speaker would naturally say the learner\'s message, keeping the meaning (return it unchanged if it is already natural; if the learner wrote Korean, give the English way to say it)\n'+
-    '- why: one short Korean sentence explaining the main change, or an empty string if nothing changed\n'+
+    '- fix: the learner\'s message corrected. Change it ONLY if it has a grammar mistake or would sound unnatural to a native speaker; if it is already correct and natural, return it exactly unchanged. Never rewrite a correct sentence just for style. If the learner wrote Korean, give the English way to say it\n'+
+    '- why: one short Korean sentence about the mistake you fixed, or an empty string if nothing changed\n'+
     '- hint: one example sentence the learner could say next, at their level\n'+
     '- ko: a natural Korean translation of your reply\n'+
+    '- used: an empty list\n'+
+    'Spoken words only: no stage directions, no asterisks, no emojis (your reply is read aloud).\n'+
     'Children may be listening: no romance, violence, alcohol, or adult topics.';
 }
 function addBub(cls, html){ const d=document.createElement('div'); d.className=cls; d.innerHTML=html; document.getElementById('chatLog').appendChild(d); window.scrollTo(0, document.body.scrollHeight); return d; }
 async function startChat(sc){
-  chat={sc, api:[], hint:''};
+  chat={sc, api:[], hint:'', used:new Set(), passed:false};
   go('chat');
+  drawMust();
   document.getElementById('chatTitle').textContent=sc.t;
   document.getElementById('chatSub').textContent=sc.ko+' · Lv.'+myLevel();
   document.getElementById('chatLog').innerHTML='';
@@ -2089,7 +2168,7 @@ async function sendChat(text){
   document.getElementById('chatInput').value='';
   document.getElementById('hintLine').hidden=true;
   addBub('who','나'); chat.lastMe=addBub('bub me', esc(text));
-  await turn(text, false);
+  await turn(maskKid(text), false);
 }
 async function turn(text, first){
   chat.busy=true;
@@ -2114,6 +2193,7 @@ async function turn(text, first){
   addBub('bub ai', esc(r.reply)+(r.ko?'<span class="ko">'+esc(r.ko)+'</span>':''));
   chat.hint=r.hint||'';
   chat.busy=false;
+  if(chat.sc.course && !first) courseUsed(r.used||[]);
   speechSynthesis.cancel();
   const u=say(r.reply, 0.95);
   if(u && phoneOn) u.onend=()=>{ if(phoneOn && document.getElementById('s-chat').classList.contains('on')) talkListen(); };
@@ -2135,7 +2215,7 @@ function talkListen(){
   rec.onend=()=>{ mic.classList.remove('rec'); talkRec=null; if(fin.trim()) sendChat(fin); };
   try{ rec.start(); }catch(e){ talkRec=null; }
 }
-function endChat(){ setPhone(false); if(talkRec){ try{talkRec.stop();}catch(e){} } speechSynthesis.cancel(); openTalk(); }
+function endChat(){ setPhone(false); if(talkRec){ try{talkRec.stop();}catch(e){} } speechSynthesis.cancel(); if(chat && chat.sc.course){ openDay(chat.sc.course.day); return; } openTalk(); }
 document.addEventListener('keydown', e=>{ if(e.key==='Enter' && document.activeElement && document.activeElement.id==='chatInput'){ e.preventDefault(); sendChat(e.target.value); } });
 
 /* ============================================================
@@ -2153,6 +2233,193 @@ async function installApp(){
 }
 // 설치 안 된 채 브라우저로 열었는데 설치 창 신호가 안 오면 메뉴 안내
 setTimeout(()=>{ if(!isStandalone() && !installEvt) document.getElementById('installTip').hidden=false; }, 2500);
+
+/* ============================================================
+   18. 30일 코스 — 상황 지도 · 하루 6단계 · 마스터 도장
+   ============================================================ */
+let COURSE=null;
+const OPEN_DAYS=7;                         // 시제품: 1주차만 열림
+const STEPS=[{no:'①', t:'워밍업', d:'지난 표현을 한글만 보고 영어로 말해요. 힌트 없이 맞히면 "익숙" 도장에 가까워져요.'},
+  {no:'②', t:'오늘 표현', d:'오늘 장면의 표현 5개. 빈칸을 맞혀 보고, 소리 나는 대로 따라 말해요.'},
+  {no:'③', t:'장면 따라 말하기', d:'아이 말을 듣고 엄마 대사를 3번씩 따라 말해요.'},
+  {no:'④', t:'한글 보고 영어로', d:'이번엔 힌트 없이. 한글만 보고 영어로 말해요.'},
+  {no:'⑤', t:'AI 역할극', d:'AI가 아이 역할을 해요. 오늘 표현을 써서 대화하면 통과!'},
+  {no:'⑥', t:'실전 미션', d:'오늘 실제 생활에서 한 번 써 봐요.'}];
+async function loadCourse(){
+  if(COURSE) return COURSE;
+  COURSE=await (await fetch('course/mom-home.json', {cache:'no-cache'})).json();
+  return COURSE;
+}
+function CS(){                                  // 프로필별 코스 기록
+  DB.course = DB.course || {id:'mom-home', kid:'', days:{}, ok:{}, mission:null, steps:{}};
+  return DB.course;
+}
+function kidName(){ return CS().kid || COURSE.kid_default; }
+function fillKid(t){ return String(t).replace(/\{kid\}/g, kidName()); }
+function maskKid(t){ const n=CS().kid; return n ? String(t).split(n).join('sweetie') : t; }
+function dayRec(n){ const c=CS(); c.days[n]=c.days[n]||{learned:false, rp:[]}; return c.days[n]; }
+function dayExprs(n){ const d=COURSE.days.find(x=>x.day===n); return (d && d.exprs)||[]; }
+function okCount(n){ return dayExprs(n).reduce((a,_,i)=>a+(CS().ok['d'+n+'e'+(i+1)]||0),0); }
+function dayMark(n){
+  const r=dayRec(n);
+  if(new Set(r.rp).size>=2) return '●';
+  if(okCount(n)>=2) return '◐';
+  return r.learned ? '○' : '';
+}
+function courseOk(key){ const c=CS(); c.ok[key]=(c.ok[key]||0)+1; save(); }
+function todayDay(){ for(let n=1;n<=OPEN_DAYS;n++){ if(!dayRec(n).done) return n; } return OPEN_DAYS; }
+async function openCourse(){
+  try{ await loadCourse(); }catch(e){ alert('코스를 불러오지 못했어요. 인터넷을 확인해 주세요.'); return; }
+  go('course');
+  const c=CS();
+  document.getElementById('crsRole').firstChild.textContent=COURSE.role+' 영어 · '+COURSE.part;
+  document.getElementById('crsTitle').textContent=COURSE.title+' — '+COURSE.part;
+  const done=Object.values(c.days).filter(d=>d.done).length;
+  document.getElementById('crsSub').textContent='Day '+done+' / '+COURSE.days_total+' 완료';
+  document.getElementById('crsLine').style.width=(done/COURSE.days_total*100)+'%';
+  document.getElementById('kidName').textContent = c.kid || '없음 (sweetie로 불러요)';
+  // 어제 미션 확인
+  const ms=document.getElementById('crsMission'); ms.innerHTML='';
+  if(c.mission && !c.mission.answered && c.mission.date!==today()){
+    ms.innerHTML='<div class="mission" style="margin-bottom:12px">어제 미션 해 봤어요?<br><span style="font-weight:500">'+esc(c.mission.text)+'</span>'+
+      '<div class="row" style="margin-top:10px; display:flex; gap:8px"><button class="btn-wide btn-acc" style="max-width:none; flex:1" onclick="answerMission(true)">해 봤어요</button>'+
+      '<button class="btn-wide btn-line" style="max-width:none; flex:1" onclick="answerMission(false)">아직이요</button></div></div>';
+  }
+  const n=todayDay(), d=COURSE.days.find(x=>x.day===n);
+  const go1=document.getElementById('crsGo');
+  go1.innerHTML='<div class="hm">오늘 · 15분</div><h3 style="margin-top:6px">Day '+n+' · '+esc(d.title)+'</h3><div class="hm" style="margin-top:4px">'+esc(d.scene)+'</div><span class="hbtn">'+(dayRec(n).done?'다시 하기':'시작')+'</span>';
+  go1.onclick=()=>openDay(n);
+  const map=document.getElementById('crsMap'); map.innerHTML='';
+  let master=0;
+  for(let i=1;i<=COURSE.days_total;i++){
+    const dd=COURSE.days.find(x=>x.day===i), b=document.createElement('button');
+    const lock = i>OPEN_DAYS || !dd, mk = lock ? '' : dayMark(i);
+    if(mk==='●') master++;
+    b.className='cday'+(i===n?' today':'')+(lock?' lock':'')+(dd&&dd.review?' rev':'');
+    b.innerHTML='<b>'+i+'</b><span>'+(dd?esc(dd.title):'')+'</span><i>'+(lock?'🔒':mk)+'</i>';
+    if(!lock) b.onclick=()=>openDay(i);
+    map.appendChild(b);
+  }
+  document.getElementById('crsCount').textContent='마스터 '+master+' / '+COURSE.days_total;
+}
+function answerMission(yes){ const c=CS(); c.mission.answered=true; c.mission.did=yes; save(); openCourse(); }
+function editKid(){
+  const v=prompt('아이를 뭐라고 부르세요? (비우면 sweetie)', CS().kid||'');
+  if(v===null) return;
+  CS().kid=v.trim().slice(0,20); save(); openCourse();
+}
+/* 하루 화면 */
+let DAYN=1;
+function stepKey(n){ return n+'@'+today(); }
+function stepsDone(n){ const c=CS(); return (c.steps[stepKey(n)]||[]); }
+function markStep(n, i){ const c=CS(), k=stepKey(n), t='@'+today();
+  const keep={}; Object.keys(c.steps).forEach(kk=>{ if(kk.endsWith(t)) keep[kk]=c.steps[kk]; });   // 오늘 것만 남김
+  keep[k]=(keep[k]||[]).filter(x=>x!==i).concat(i); c.steps=keep; save(); }
+function dayStepList(d){ return d.review ? [0,4,5] : [0,1,2,3,4,5]; }
+async function openDay(n){
+  await loadCourse(); DAYN=n; go('day');
+  const d=COURSE.days.find(x=>x.day===n);
+  document.getElementById('dayTitle').textContent='Day '+n+' · '+d.title;
+  document.getElementById('daySub').textContent=d.scene+' · 오늘 하루 15분';
+  const list=dayStepList(d), done=stepsDone(n), next=list.find(i=>!done.includes(i));
+  document.getElementById('daySteps').innerHTML=list.map(i=>'<i class="'+(done.includes(i)?'done':(i===next?'now':''))+'"></i>').join('');
+  const card=document.getElementById('stepCard');
+  if(next===undefined){
+    const r=dayRec(n); r.done=r.done||today(); save();
+    card.innerHTML='<div class="no">오늘 완료!</div><h3>Day '+n+' 끝 🎉</h3><p>상황 지도 도장: '+(dayMark(n)||'○')+
+      '<br>○ 배움 → ◐ 익숙(다음 워밍업에서 힌트 없이 맞히기) → ● 마스터(다른 날 역할극 2번 통과)</p>'+
+      '<button class="btn-wide btn-acc" style="max-width:none" onclick="openCourse()">상황 지도로</button>';
+    return;
+  }
+  const st=STEPS[next];
+  let extra='';
+  if(next===1 && d.words) extra='<div class="wchips">'+d.words.map(w=>'<button onclick="say(\''+w.w+'\',0.85)">'+esc(w.w)+'<small>'+esc(w.k)+'</small></button>').join('')+'</div><p style="font-size:13px">바꿔 끼우는 단어 · 눌러서 들어 보세요</p>';
+  if(next===5) extra='<div class="mission">'+esc(d.mission)+'</div>';
+  if(next===4) extra='<p><b>목표</b> · '+esc(d.rp.goal)+'</p>'+(getKey()?'':'<p style="color:var(--miss)">AI 대화 키가 이 기기에 없어요. 가족 링크로 한 번 열어 주세요.</p>');
+  card.innerHTML='<div class="no">'+st.no+' '+st.t+'</div><h3>'+esc(d.title)+'</h3><p>'+st.d+'</p>'+extra+
+    '<button class="btn-wide btn-acc" style="max-width:none" id="stepGo">'+(next===5?'해 볼게요':'시작')+'</button>'+
+    (next===0||next===4?'<button class="textbtn" style="color:var(--ink-2)" id="stepSkip">이 단계 건너뛰기</button>':'');
+  document.getElementById('stepGo').onclick=()=>runStep(n, next);
+  const sk=document.getElementById('stepSkip'); if(sk) sk.onclick=()=>{ markStep(n,next); openDay(n); };
+}
+function audioUrl(n, kind, i){ return 'audio/'+COURSE.id+'/d'+n+'_'+kind+i+'.mp3'; }
+function coursePage(t, extra){ return Object.assign({t:fillKid(t), raw:t, e:'🗣'}, extra); }
+function courseBook(n, pages, opts){
+  return Object.assign({id:'course_'+COURSE.id+'_d'+n, course:true, title:'Day '+n, emoji:'🗣', level:myLevel(), quiz:[], pages,
+    onDone:()=>{ markStep(n, opts.step); if(opts.after) opts.after(); openDay(n); },
+    onExit:()=>openDay(n)}, opts);
+}
+function warmupPages(n){
+  const src = n===7 ? [1,2,3,4,5,6] : [n-1, n-3, n-7].filter(x=>x>=1 && x<n && x!==7);
+  const pages=[];
+  src.forEach(sd=>{
+    const ex=dayExprs(sd);
+    // 덜 맞힌 표현부터 2개씩
+    ex.map((e,i)=>({e,i,ok:CS().ok['d'+sd+'e'+(i+1)]||0})).sort((a,b)=>a.ok-b.ok).slice(0,2).forEach(({e,i})=>
+      pages.push(coursePage(e.t, {k:e.k, x:e.x, xk:e.xk, snd:e.snd, hideAll:true, key:'d'+sd+'e'+(i+1), audio:audioUrl(sd,'e',i+1)})));
+  });
+  return pages.slice(0,10);
+}
+function runStep(n, i){
+  const d=COURSE.days.find(x=>x.day===n);
+  let pages=[], opts={step:i};
+  if(i===0){ pages=warmupPages(n); opts.noAuto=true; if(!pages.length){ markStep(n,0); openDay(n); return; } }
+  if(i===1){ pages=d.exprs.map((e,k)=>coursePage(e.t,{k:e.k, x:e.x, xk:e.xk, snd:e.snd, audio:audioUrl(n,'e',k+1)})); opts.after=()=>{ dayRec(n).learned=true; save(); }; }
+  if(i===2){ d.dialog.forEach((l,k)=>{ if(l.who!=='mom') return; const prev=d.dialog[k-1];
+      pages.push(coursePage(l.t,{k:l.k, audio:audioUrl(n,'l',k+1), ctx: prev&&prev.who==='kid'? prev.t : '', ctxAudio: prev&&prev.who==='kid'? audioUrl(n,'l',k) : ''})); });
+      opts.tries=true; }
+  if(i===3){ pages=d.exprs.map((e,k)=>coursePage(e.t,{k:e.k, x:e.x, xk:e.xk, snd:e.snd, hideAll:true, audio:audioUrl(n,'e',k+1)})); opts.noAuto=true; }
+  if(i===4){ startCourseChat(n); return; }
+  if(i===5){ CS().mission={day:n, date:today(), text:d.mission}; markStep(n,5); openDay(n); return; }
+  curBook=courseBook(n, pages, opts); curIdx=0; curScores=[];
+  showKo = (i===0||i===3);
+  go('read');
+  document.getElementById('scene').hidden=true; document.getElementById('ytBox').hidden=true;
+  renderPage();
+}
+/* 녹음 음성: 이름을 바꿨으면 그 문장은 브라우저 음성으로 */
+let AUD=null;
+function stopAudio(){ if(AUD){ try{ AUD.pause(); }catch(e){} AUD=null; } }
+function playUrls(urls){
+  stopAudio(); speechSynthesis.cancel();
+  const q=urls.filter(Boolean); if(!q.length) return;
+  const a=new Audio(q.shift()); AUD=a;
+  a.playbackRate = readRate()>=0.95 ? 1 : (readRate()>=0.75 ? 0.9 : 0.8);
+  a.onended=()=>{ if(AUD===a && q.length) playUrls(q); };
+  a.play().catch(()=>{});
+}
+function playCourseLine(){
+  const pg=curPage();
+  const custom = CS().kid && /\{kid\}/.test(pg.raw||'');
+  if(custom){ stopAudio(); speechSynthesis.cancel(); say(pg.t, Math.max(0.8, readRate())); return; }
+  playUrls([pg.ctxAudio||'', pg.audio]);
+}
+/* AI 역할극: 오늘 표현을 써야 통과 */
+function startCourseChat(n){
+  const d=COURSE.days.find(x=>x.day===n);
+  const must = d.review ? COURSE.days.filter(x=>x.exprs && x.day<n).map(x=>x.exprs.map(e=>e.x)).flat() : d.exprs.map(e=>e.x);
+  const need = d.review ? 6 : Math.min(4, must.length);
+  startChat({t:'Day '+n+' 역할극', ko:d.rp.goal, course:{day:n, kid:d.rp.kid, goal:d.rp.goal, must, need}});
+}
+function drawMust(){
+  const row=document.getElementById('mustRow');
+  if(!chat || !chat.sc.course){ row.hidden=true; return; }
+  const c=chat.sc.course; row.hidden=false;
+  row.innerHTML='<span style="background:transparent;padding-left:0">'+c.must.length+'개 중 '+c.need+'개 쓰면 통과 · 지금 '+chat.used.size+'개</span>'+
+    c.must.map(m=>'<span class="'+(chat.used.has(m)?'on':'')+'">'+esc(m)+'</span>').join('');
+}
+function courseUsed(list){
+  const c=chat.sc.course;
+  list.forEach(u=>{ const hit=c.must.find(m=>norm(m)===norm(u) || norm(u).includes(norm(m))); if(hit) chat.used.add(hit); });
+  drawMust();
+  if(!chat.passed && chat.used.size>=c.need){
+    chat.passed=true;
+    const r=dayRec(c.day); if(!r.rp.includes(today())) r.rp.push(today());
+    markStep(c.day, 4); save();
+    const card=addBub('passcard','🎉 역할극 통과! 오늘 표현을 대화에서 써냈어요.<button class="btn-wide btn-acc" style="max-width:none">다음 단계로</button>');
+    card.querySelector('button').onclick=()=>{ setPhone(false); speechSynthesis.cancel(); openDay(c.day); };
+  }
+}
 
 /* ============================================================
    14. 유튜브 클립 — 대사는 clips.bin(암호화)에서 읽는다.
@@ -2270,8 +2537,8 @@ document.addEventListener('visibilitychange',()=>{ if(document.hidden){ speechSy
 </script>
 <script type="module">
 /* Claude API — 공식 TypeScript SDK(브라우저용). 키는 사용자가 이 기기에 넣은 것만 쓴다. */
-const SCHEMA={type:'object', additionalProperties:false, required:['reply','ko','fix','why','hint'],
-  properties:{reply:{type:'string'}, ko:{type:'string'}, fix:{type:'string'}, why:{type:'string'}, hint:{type:'string'}}};
+const SCHEMA={type:'object', additionalProperties:false, required:['reply','ko','fix','why','hint','used'],
+  properties:{reply:{type:'string'}, ko:{type:'string'}, fix:{type:'string'}, why:{type:'string'}, hint:{type:'string'}, used:{type:'array', items:{type:'string'}}}};
 let Anthropic=null;
 window.aiChat=async function(apiKey, system, messages){
   if(!Anthropic){

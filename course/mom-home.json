@@ -1,0 +1,159 @@
+{
+ "id": "mom-home",
+ "role": "엄마",
+ "title": "30일 완성 엄마 영어",
+ "part": "집 편",
+ "days_total": 30,
+ "kid_default": "sweetie",
+ "days": [
+  {
+   "day": 1, "title": "깨우기", "scene": "아침에 아이 깨우기",
+   "exprs": [
+    {"t": "Good morning, {kid}! Time to wake up.", "k": "좋은 아침! 일어날 시간이야.", "x": "Time to wake up", "xk": "일어날 시간이야", "snd": "타임투 웨이컵"},
+    {"t": "Rise and shine!", "k": "자, 일어나자!", "x": "Rise and shine", "xk": "아침에 깨울 때 쓰는 기분 좋은 말 (해님처럼 반짝!)", "snd": "라이전 샤인"},
+    {"t": "Did you sleep well?", "k": "잘 잤어?", "x": "sleep well", "xk": "잘 자다", "snd": "디쥬 슬립 웰"},
+    {"t": "Five more minutes? Okay, just five.", "k": "5분만 더? 그래, 딱 5분.", "x": "Five more minutes", "xk": "5분만 더", "snd": "파이브 모어 미닛츠"},
+    {"t": "Let's get up and open the curtains.", "k": "일어나서 커튼 열자.", "x": "get up", "xk": "(몸을) 일으키다, 일어나다", "snd": "렛츠 게럽"}
+   ],
+   "words": [{"w": "curtains", "k": "커튼"}, {"w": "blanket", "k": "이불"}, {"w": "alarm", "k": "알람"}, {"w": "pillow", "k": "베개"}],
+   "dialog": [
+    {"who": "mom", "t": "Good morning, {kid}! Time to wake up.", "k": "좋은 아침! 일어날 시간이야."},
+    {"who": "kid", "t": "Mmm... I'm still sleepy.", "k": "음… 아직 졸려."},
+    {"who": "mom", "t": "Did you sleep well?", "k": "잘 잤어?"},
+    {"who": "kid", "t": "Yes... Five more minutes?", "k": "응… 5분만 더?"},
+    {"who": "mom", "t": "Okay, just five. Then let's get up.", "k": "그래, 딱 5분. 그다음엔 일어나자."},
+    {"who": "kid", "t": "Okay, Mommy.", "k": "알았어, 엄마."},
+    {"who": "mom", "t": "Rise and shine! Let's open the curtains.", "k": "자, 일어나자! 커튼 열자."},
+    {"who": "kid", "t": "It's so bright!", "k": "너무 밝아!"}
+   ],
+   "rp": {"kid": "a sleepy 5-year-old who keeps asking to sleep a little more", "goal": "졸린 아이를 깨워서 일어나게 하기"},
+   "mission": "내일 아침 아이를 깨울 때 \"Rise and shine!\" 한 번 해 보기"
+  },
+  {
+   "day": 2, "title": "씻기·양치", "scene": "세수하고 이 닦기 (씻어라)",
+   "exprs": [
+    {"t": "Go wash your face.", "k": "세수하고 와.", "x": "wash your face", "xk": "세수하다", "snd": "워쉬유어 페이스"},
+    {"t": "Let's brush your teeth.", "k": "이 닦자.", "x": "brush your teeth", "xk": "이를 닦다", "snd": "브러쉬유어 티쓰"},
+    {"t": "Don't forget the back teeth.", "k": "어금니도 잊지 말고.", "x": "Don't forget", "xk": "~ 잊지 마", "snd": "돈포겟"},
+    {"t": "Rinse your mouth.", "k": "입 헹궈.", "x": "Rinse your mouth", "xk": "입을 헹구다", "snd": "린스유어 마우쓰"},
+    {"t": "Dry your hands with the towel.", "k": "수건으로 손 닦아.", "x": "Dry your hands", "xk": "손의 물기를 닦다", "snd": "드라이유어 핸즈"}
+   ],
+   "words": [{"w": "soap", "k": "비누"}, {"w": "toothbrush", "k": "칫솔"}, {"w": "toothpaste", "k": "치약"}, {"w": "towel", "k": "수건"}],
+   "dialog": [
+    {"who": "mom", "t": "Go wash your face, {kid}.", "k": "세수하고 와."},
+    {"who": "kid", "t": "The water is cold!", "k": "물이 차가워!"},
+    {"who": "mom", "t": "Use the warm water. Now let's brush your teeth.", "k": "따뜻한 물 써. 이제 이 닦자."},
+    {"who": "kid", "t": "Do I have to?", "k": "꼭 해야 돼?"},
+    {"who": "mom", "t": "Yes. Don't forget the back teeth.", "k": "응. 어금니도 잊지 말고."},
+    {"who": "kid", "t": "Done!", "k": "다 했어!"},
+    {"who": "mom", "t": "Rinse your mouth. Good job!", "k": "입 헹궈. 잘했어!"},
+    {"who": "kid", "t": "Can I have a towel?", "k": "수건 줄래?"},
+    {"who": "mom", "t": "Here. Dry your hands with the towel.", "k": "여기. 수건으로 손 닦아."}
+   ],
+   "rp": {"kid": "a 5-year-old who does not like brushing teeth and tries to skip it", "goal": "양치 싫어하는 아이 씻기고 이 닦이기"},
+   "mission": "오늘 밤 양치할 때 \"Don't forget the back teeth.\" 해 보기"
+  },
+  {
+   "day": 3, "title": "옷 입기", "scene": "아침에 옷 입히기",
+   "exprs": [
+    {"t": "Let's get dressed.", "k": "옷 입자.", "x": "get dressed", "xk": "옷을 입다", "snd": "렛츠 겟드레스트"},
+    {"t": "What do you want to wear today?", "k": "오늘 뭐 입고 싶어?", "x": "want to wear", "xk": "입고 싶다", "snd": "왓두유 워너 웨어"},
+    {"t": "Put on your socks.", "k": "양말 신어.", "x": "Put on", "xk": "(옷·양말·신발을) 입다·신다", "snd": "푸론 유어 삭스"},
+    {"t": "Oops, it's inside out.", "k": "어머, 옷이 뒤집혔네.", "x": "inside out", "xk": "안팎이 뒤집힌", "snd": "잇츠 인사이다웃"},
+    {"t": "Can you button it up by yourself?", "k": "혼자 단추 잠글 수 있어?", "x": "by yourself", "xk": "혼자서", "snd": "버트닛업 바이유어셀프"}
+   ],
+   "words": [{"w": "shirt", "k": "셔츠"}, {"w": "pants", "k": "바지"}, {"w": "jacket", "k": "재킷"}, {"w": "socks", "k": "양말"}],
+   "dialog": [
+    {"who": "mom", "t": "Let's get dressed, {kid}.", "k": "옷 입자."},
+    {"who": "kid", "t": "I want my dinosaur shirt!", "k": "공룡 셔츠 입고 싶어!"},
+    {"who": "mom", "t": "Okay. What do you want to wear today?", "k": "그래. 오늘 뭐 입고 싶어?"},
+    {"who": "kid", "t": "The blue pants.", "k": "파란 바지."},
+    {"who": "mom", "t": "Good choice. Put on your socks.", "k": "잘 골랐네. 양말 신어."},
+    {"who": "kid", "t": "Like this?", "k": "이렇게?"},
+    {"who": "mom", "t": "Oops, it's inside out. Let's fix it.", "k": "어머, 뒤집혔네. 고치자."},
+    {"who": "kid", "t": "Can I do the buttons?", "k": "단추 내가 해도 돼?"},
+    {"who": "mom", "t": "Sure. Can you button it up by yourself?", "k": "그럼. 혼자 단추 잠글 수 있어?"}
+   ],
+   "rp": {"kid": "a 5-year-old who wants to choose their own clothes and insists on wearing a superhero costume", "goal": "고집부리는 아이 옷 입히기"},
+   "mission": "아이 옷 입힐 때 \"Put on your socks.\" 해 보기"
+  },
+  {
+   "day": 4, "title": "아침밥", "scene": "밥 먹어라 (아침 식사)",
+   "exprs": [
+    {"t": "Breakfast is ready! Come and eat.", "k": "아침 다 됐다! 와서 먹어.", "x": "Come and eat", "xk": "와서 먹어", "snd": "커먼 잇"},
+    {"t": "Wash your hands first.", "k": "손 먼저 씻고.", "x": "Wash your hands", "xk": "손을 씻다", "snd": "워쉬유어 핸즈"},
+    {"t": "Sit down at the table, please.", "k": "식탁에 앉아.", "x": "Sit down", "xk": "앉다", "snd": "씻다운 앳더 테이블"},
+    {"t": "Just one more bite.", "k": "한 입만 더 먹자.", "x": "one more bite", "xk": "한 입 더", "snd": "저스트 원모어 바잇"},
+    {"t": "Are you full?", "k": "배불러?", "x": "Are you full", "xk": "배부르니?", "snd": "아유 풀"}
+   ],
+   "words": [{"w": "rice", "k": "밥"}, {"w": "eggs", "k": "달걀"}, {"w": "milk", "k": "우유"}, {"w": "spoon", "k": "숟가락"}],
+   "dialog": [
+    {"who": "mom", "t": "Breakfast is ready! Come and eat.", "k": "아침 다 됐다! 와서 먹어."},
+    {"who": "kid", "t": "Coming!", "k": "가요!"},
+    {"who": "mom", "t": "Wash your hands first.", "k": "손 먼저 씻고."},
+    {"who": "kid", "t": "Okay. What's for breakfast?", "k": "응. 아침 뭐야?"},
+    {"who": "mom", "t": "Eggs and toast. Sit down at the table, please.", "k": "달걀이랑 토스트. 식탁에 앉아."},
+    {"who": "kid", "t": "I don't like eggs.", "k": "달걀 싫어."},
+    {"who": "mom", "t": "Just one more bite. You can do it.", "k": "한 입만 더. 할 수 있어."},
+    {"who": "kid", "t": "Mmm... okay.", "k": "음… 알았어."},
+    {"who": "mom", "t": "Are you full?", "k": "배불러?"},
+    {"who": "kid", "t": "Yes, I'm full!", "k": "응, 배불러!"}
+   ],
+   "rp": {"kid": "a picky 5-year-old who does not want to eat eggs or vegetables", "goal": "편식하는 아이 아침 먹이기"},
+   "mission": "오늘 밥 먹을 때 \"Just one more bite.\" 해 보기"
+  },
+  {
+   "day": 5, "title": "외출 준비", "scene": "외출할 때 (신발·겉옷·손 잡기)",
+   "exprs": [
+    {"t": "We're leaving in five minutes.", "k": "5분 뒤에 나간다.", "x": "leaving in", "xk": "~ 뒤에 나간다", "snd": "위어 리빙인 파이브 미닛츠"},
+    {"t": "Put on your shoes.", "k": "신발 신어.", "x": "Put on your shoes", "xk": "신발을 신다", "snd": "푸론유어 슈즈"},
+    {"t": "Grab your jacket. It's cold outside.", "k": "재킷 챙겨. 밖에 추워.", "x": "Grab your jacket", "xk": "재킷을 챙기다", "snd": "그랩유어 재킷"},
+    {"t": "Did you pack your water bottle?", "k": "물병 챙겼어?", "x": "pack your", "xk": "(가방에) ~를 챙기다", "snd": "디쥬 팩유어 워러 바를"},
+    {"t": "Hold my hand when we cross the street.", "k": "길 건널 때 손 잡아.", "x": "Hold my hand", "xk": "손 잡아", "snd": "홀마이 핸드"}
+   ],
+   "words": [{"w": "backpack", "k": "가방"}, {"w": "hat", "k": "모자"}, {"w": "umbrella", "k": "우산"}, {"w": "sneakers", "k": "운동화"}],
+   "dialog": [
+    {"who": "mom", "t": "We're leaving in five minutes!", "k": "5분 뒤에 나간다!"},
+    {"who": "kid", "t": "I'm not ready!", "k": "나 아직 준비 안 됐어!"},
+    {"who": "mom", "t": "Put on your shoes, please.", "k": "신발 신어."},
+    {"who": "kid", "t": "Which ones?", "k": "어떤 거?"},
+    {"who": "mom", "t": "The sneakers. Grab your jacket. It's cold outside.", "k": "운동화. 재킷 챙겨. 밖에 추워."},
+    {"who": "kid", "t": "Okay, I got it.", "k": "응, 챙겼어."},
+    {"who": "mom", "t": "Did you pack your water bottle?", "k": "물병 챙겼어?"},
+    {"who": "kid", "t": "Oops! Not yet.", "k": "앗! 아직."},
+    {"who": "mom", "t": "Hurry up. And hold my hand when we cross the street.", "k": "서둘러. 그리고 길 건널 때 손 잡아."}
+   ],
+   "rp": {"kid": "a 5-year-old who is slow getting ready and keeps getting distracted by toys", "goal": "느릿느릿한 아이 챙겨서 나가기"},
+   "mission": "외출할 때 \"Put on your shoes.\" 해 보기"
+  },
+  {
+   "day": 6, "title": "배웅 인사", "scene": "학교·어린이집 앞에서 헤어지기",
+   "exprs": [
+    {"t": "Have a great day at school!", "k": "학교에서 좋은 하루 보내!", "x": "Have a great day", "xk": "좋은 하루 보내", "snd": "해버 그레잇 데이"},
+    {"t": "Listen to your teacher.", "k": "선생님 말씀 잘 들어.", "x": "Listen to", "xk": "~의 말을 (귀 기울여) 듣다", "snd": "리쓴투 유어 티처"},
+    {"t": "I'll pick you up at three.", "k": "3시에 데리러 갈게.", "x": "pick you up", "xk": "데리러 가다", "snd": "아일 픽큐업"},
+    {"t": "Give me a hug.", "k": "안아 줘.", "x": "Give me a hug", "xk": "안아 줘", "snd": "깁미어 허그"},
+    {"t": "See you later! Love you.", "k": "이따 봐! 사랑해.", "x": "See you later", "xk": "이따 봐", "snd": "씨유 레이러"}
+   ],
+   "words": [{"w": "teacher", "k": "선생님"}, {"w": "friends", "k": "친구들"}, {"w": "lunch", "k": "점심"}, {"w": "bus", "k": "버스"}],
+   "dialog": [
+    {"who": "mom", "t": "Here we are. Have a great day at school!", "k": "다 왔다. 학교에서 좋은 하루 보내!"},
+    {"who": "kid", "t": "Do I have to go?", "k": "꼭 가야 돼?"},
+    {"who": "mom", "t": "Yes, {kid}. You'll have fun with your friends.", "k": "응. 친구들이랑 재밌게 놀 거야."},
+    {"who": "kid", "t": "Okay...", "k": "알았어…"},
+    {"who": "mom", "t": "Listen to your teacher, okay?", "k": "선생님 말씀 잘 들어, 알았지?"},
+    {"who": "kid", "t": "When are you coming?", "k": "엄마 언제 와?"},
+    {"who": "mom", "t": "I'll pick you up at three. Give me a hug.", "k": "3시에 데리러 갈게. 안아 줘."},
+    {"who": "kid", "t": "Bye, Mommy!", "k": "안녕, 엄마!"},
+    {"who": "mom", "t": "See you later! Love you.", "k": "이따 봐! 사랑해."}
+   ],
+   "rp": {"kid": "a 5-year-old who feels nervous and does not want to say goodbye at the school gate", "goal": "헤어지기 싫어하는 아이 달래서 들여보내기"},
+   "mission": "아이를 보낼 때 \"Have a great day!\" 해 보기"
+  },
+  {
+   "day": 7, "title": "1주 복습", "scene": "아침 전체 이어 하기 (깨우기 → 배웅)", "review": true,
+   "rp": {"kid": "a 5-year-old going through the whole morning: sleepy at first, picky at breakfast, slow getting ready, nervous at the school gate", "goal": "깨우기부터 배웅까지 아침 전체를 영어로"},
+   "mission": "내일 아침, 이번 주 표현 중 3개를 실제로 써 보기"
+  }
+ ]
+}
