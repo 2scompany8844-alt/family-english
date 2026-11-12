@@ -40,6 +40,7 @@
   }
 }
 *{box-sizing:border-box; -webkit-tap-highlight-color:transparent}
+[hidden]{display:none!important}
 html,body{height:100%}
 body{margin:0; background:var(--bg); color:var(--ink); font-family:var(--font);
   font-size:15px; line-height:1.5; letter-spacing:-.01em;
@@ -289,6 +290,16 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 .bar i{display:block; height:100%; background:var(--acc); border-radius:6px; transition:width .35s}
 .toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(84px + env(safe-area-inset-bottom,0px)); z-index:30;
   background:var(--ink); color:var(--bg); font-size:14px; font-weight:600; padding:10px 16px; border-radius:999px; white-space:nowrap}
+.ytbox{position:relative; width:100%; max-width:100%; aspect-ratio:16/9; border-radius:var(--r-card); overflow:hidden; background:#000; margin-bottom:12px}
+.ytbox iframe,.ytbox #ytPlayer{position:absolute; inset:0; width:100%; height:100%; border:0}
+.clist{display:flex; flex-direction:column; gap:10px}
+.ccard{display:flex; gap:12px; align-items:center; background:var(--surface); border-radius:var(--r-bubble); padding:10px; text-align:left; min-width:0}
+.ccard img{width:132px; max-width:40%; aspect-ratio:16/9; object-fit:cover; border-radius:12px; flex-shrink:0; background:var(--line)}
+.ccard div{min-width:0; display:flex; flex-direction:column; gap:2px}
+.ccard b{font-size:16px; font-weight:700; line-height:1.3}
+.ccard span{font-size:12px; color:var(--ink-2)}
+.ccard .done{color:var(--acc-ink); font-weight:600}
+.lvtag{font-size:12px; font-weight:600; color:var(--ink-3); margin-top:2px}
 </style>
 </head>
 <body>
@@ -343,11 +354,13 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
   <div id="todayHero"></div>
   <div class="nextrow" id="todayNext"></div>
 
+  <div id="stampSec">
   <div class="sech"><h2>도장판</h2><span><span id="scNow">0</span> / 10</span></div>
   <div class="sc-grid" id="stampGrid"></div>
   <div class="wkbar"><i id="wkBar" style="width:0%"></i></div>
   <p class="sc-note"><span id="scWeek">이번 주 0/7일</span> · 일주일을 빠짐없이 채우면 도장 1개, 도장 10개면 다이소 이용권 1장</p>
   <div id="couponBox"></div>
+  </div>
 
   <div class="sech" id="shelfTop"><h2>책장</h2><button onclick="openAdd()" style="font-size:14px; font-weight:600; color:var(--ink-2)">+ 책 추가</button></div>
   <div class="tabs" id="tabs"></div>
@@ -356,11 +369,21 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 
   <nav class="tabbar" aria-label="메뉴"><div class="in">
     <button class="on" onclick="window.scrollTo({top:0,behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3l9 8h-3v9h-5v-6h-2v6H6v-9H3z"/></svg>홈</button>
-    <button aria-disabled="true" onclick="soon('클립')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>클립</button>
+    <button onclick="openClips()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="M10 9l5 3-5 3z" fill="currentColor"/></svg>클립</button>
     <button aria-disabled="true" onclick="soon('대화')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 6a3 3 0 013-3h10a3 3 0 013 3v7a3 3 0 01-3 3H10l-4 4v-4H7a3 3 0 01-3-3z"/></svg>대화</button>
     <button onclick="document.getElementById('shelfTop').scrollIntoView({behavior:'smooth'})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="4" width="4" height="16" rx="1.5"/><rect x="10" y="4" width="4" height="16" rx="1.5"/><rect x="16" y="4" width="4" height="16" rx="1.5"/></svg>책장</button>
   </div></nav>
   <div class="toast" id="toast" hidden></div>
+</section>
+
+<!-- ========== 클립 목록 ========== -->
+<section id="s-clips" class="screen">
+  <div class="subtop">
+    <div class="t">미드·영어 장면<b>클립</b></div>
+    <button class="xbtn" onclick="go('home');drawHome()" aria-label="닫기"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+  </div>
+  <p class="eyebrow" style="margin:0 0 14px">장면을 고르면 한 문장씩 듣고 따라 말해요.</p>
+  <div class="clist" id="clipList"></div>
 </section>
 
 <!-- ========== 읽기 (스픽 '이제 말해 보세요' 짜임) ========== -->
@@ -371,6 +394,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
     <div class="pg" id="pgNum"></div>
   </div>
 
+  <div class="ytbox" id="ytBox" hidden><div id="ytPlayer"></div></div>
   <div class="scene" id="scene"><span>📖</span></div>
 
   <div class="speakpanel">
@@ -378,6 +402,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
     <p class="sentence en" id="sentence"></p>
     <p class="ko hide" id="koText"></p>
     <button class="ko-toggle" onclick="toggleKo()" id="koBtn">뜻 보기</button>
+    <div class="lvtag" id="lvTag"></div>
     <div class="heard" id="heard"></div>
   </div>
 
@@ -744,7 +769,7 @@ function fill(s, kid){ kid=kid||KID; return String(s).replace(/\{name\}/g, kid.e
    5. 화면 전환
    ============================================================ */
 function go(name){
-  speechSynthesis.cancel(); stopMic();
+  speechSynthesis.cancel(); stopMic(); pauseClip();
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('on'));
   document.getElementById('s-'+name).classList.add('on');
   window.scrollTo(0,0);
@@ -763,6 +788,8 @@ function setRate(v){ DB.rate=v; save(); drawRateUI(); }
 const RATES=[0.6,0.7,0.8,1.0];
 function drawRateUI(){ const b=document.getElementById('speedBtn'); if(b) b.textContent=readRate()+'×'; }
 function cycleRate(){ const r=readRate(); const i=RATES.findIndex(x=>Math.abs(x-r)<0.01); setRate(RATES[(i+1)%RATES.length]); speak(); }
+/* 유튜브는 0.25 단위만 되므로 가까운 값으로 */
+function clipRate(){ const r=readRate(); return r>=0.95? 1 : (r>=0.75? 0.75 : 0.5); }
 function pickVoice(){
   const vs = speechSynthesis.getVoices().filter(v=>/^en[-_]?/i.test(v.lang));
   if(!vs.length) return;
@@ -782,6 +809,7 @@ function say(text, rate){
   return u;
 }
 function speak(slow){
+  if(curBook && curBook.clip){ playSeg(); return; }
   speechSynthesis.cancel();
   const txt=fill(curPage().t);
   const spans=[...document.querySelectorAll('#sentence .w')];
@@ -827,7 +855,7 @@ function toggleMic(){
   startMic();
 }
 function startMic(){
-  speechSynthesis.cancel();
+  speechSynthesis.cancel(); pauseClip();
   rec=new SR();
   rec.lang='en-US'; rec.interimResults=true; rec.maxAlternatives=3; rec.continuous=false;
   const btn=document.getElementById('micBtn'), heard=document.getElementById('heard'), ms=document.getElementById('micState');
@@ -938,13 +966,14 @@ async function openBook(id){
   curBook=allBooks().find(b=>b.id===id);
   curIdx=0; curScores=[];
   go('read');
+  document.getElementById('scene').hidden=false; document.getElementById('ytBox').hidden=true;
   if(curBook.wink){
     document.getElementById('scene').innerHTML='<span>⏳</span>';
     await loadScenes(curBook);
   } else releaseScenes();
   renderPage();
 }
-function exitBook(){ releaseScenes(); go('home'); drawHome(); }
+function exitBook(){ releaseScenes(); if(curBook && curBook.clip){ openClips(); } else { go('home'); drawHome(); } }
 
 function renderPage(){
   pageScored=false;
@@ -954,6 +983,7 @@ function renderPage(){
   const words=fill(p.t).split(' ');
   document.getElementById('sentence').innerHTML=words.map(w=>'<span class="w" data-raw="'+esc(w)+'">'+esc(w)+'</span>').join(' ');
   document.getElementById('koText').textContent=fill(p.k);
+  document.getElementById('lvTag').textContent = p.lv ? 'Lv.'+p.lv : '';
   renderKo();
   document.getElementById('heard').textContent='';
   document.getElementById('result').classList.remove('on');
@@ -1425,6 +1455,7 @@ function clearPageImage(){
   renderScene();
 }
 function renderScene(){
+  if(curBook.clip) return;
   const p=curPage(), sc=document.getElementById('scene');
   const photo=getPageImage(curBook.id,curIdx);
   const built=(curBook.wink && p.s!=null) ? (sceneUrls[p.s]||'') : (p.img||'');
@@ -1636,7 +1667,17 @@ function pickToday(){
   return pick;
 }
 function coverAttr(b){ return b.cover? ' data-cover="'+b.cover+'"' : ''; }
+function clipDoneToday(){ return Object.entries(DB.books).filter(([id,r])=>id.indexOf('clip_')===0 && r.last===today()).length; }
 function drawToday(){
+  if(KID.kind==='adult'){
+    const n=clipDoneToday();
+    const hero=document.getElementById('todayHero'), next=document.getElementById('todayNext');
+    next.innerHTML=''; next.hidden=true;
+    hero.innerHTML='<button class="hero'+(n?' done':'')+'" onclick="openClips()"><div class="hcover">🎬</div>'+
+      '<h3>오늘의 클립</h3><div class="hm">미드·영어 장면을 한 문장씩 따라 말하기</div>'+
+      '<span class="hbtn">'+(n?'하나 더 하기':'클립 열기')+'</span></button>';
+    return {done:Math.min(n,1), total:1, adult:true};
+  }
   const list=pickToday();
   const done=list.filter(b=>readToday(b.id)).length;
   const allDone = list.length>0 && done>=list.length;
@@ -1692,8 +1733,9 @@ function drawHome(){
   document.getElementById('hStars').textContent=DB.stars||0;
   const t=drawToday();
   const allDone = t.total>0 && t.done>=t.total;
-  document.getElementById('hHi').textContent = '오늘 할 것 · '+t.done+'/'+t.total+'권'+(streakOf(DB)? ' · '+streakOf(DB)+'일 연속':'');
-  document.getElementById('missionText').textContent = allDone ? '오늘 미션 완료! 🎉' : ('책 '+t.total+'권 읽기');
+  document.getElementById('hHi').textContent = '오늘 할 것 · '+t.done+'/'+t.total+(t.adult?'':'권')+(streakOf(DB)? ' · '+streakOf(DB)+'일 연속':'');
+  document.getElementById('missionText').textContent = allDone ? '오늘 미션 완료! 🎉' : (t.adult? '클립 하나 따라 말하기' : '책 '+t.total+'권 읽기');
+  document.getElementById('stampSec').hidden = KID.kind==='adult';
   document.getElementById('tLine').style.width = (t.total? t.done/t.total*100 : 0)+'%';
 
   const tabs=document.getElementById('tabs'); tabs.innerHTML='';
@@ -1760,6 +1802,93 @@ function resetOne(){
   if(KID && KID.id===k.id) DB=blank();
   drawReport(k.id);
 }
+
+/* ============================================================
+   14. 유튜브 클립 — 대사는 clips.bin(암호화)에서 읽는다.
+       가족 링크 #k=<키> 로 한 번 연 기기에만 키가 저장된다.
+   ============================================================ */
+const CLIP_KEY_LS='readalong.clipkey';
+function grabKey(){
+  const m=location.hash.match(/k=([A-Za-z0-9_-]+)/);
+  if(!m) return;
+  try{ localStorage.setItem(CLIP_KEY_LS, m[1]); }catch(e){}
+  history.replaceState(null, '', location.pathname + location.search);   // 주소창에서 키 지우기
+}
+grabKey();
+window.addEventListener('hashchange', grabKey);   // 앱이 열린 채로 가족 링크를 눌렀을 때
+let CLIPS=null;
+function b64u(t){ t=t.replace(/-/g,'+').replace(/_/g,'/'); while(t.length%4) t+='='; return Uint8Array.from(atob(t), c=>c.charCodeAt(0)); }
+async function loadClips(){
+  if(CLIPS) return CLIPS;
+  let k=null; try{ k=localStorage.getItem(CLIP_KEY_LS); }catch(e){}
+  if(!k) return null;
+  const raw=new Uint8Array(await (await fetch('clips.bin', {cache:'no-cache'})).arrayBuffer());
+  const key=await crypto.subtle.importKey('raw', b64u(k), 'AES-GCM', false, ['decrypt']);
+  const pt=await crypto.subtle.decrypt({name:'AES-GCM', iv:raw.slice(0,12)}, key, raw.slice(12));
+  CLIPS=JSON.parse(new TextDecoder().decode(pt));
+  return CLIPS;
+}
+function clipBook(c){
+  return {id:'clip_'+c.id, clip:true, video:c.id, level:c.lv, title:c.title, emoji:'🎬', show:c.show, quiz:[],
+    pages:c.lines.map(l=>({t:l.t, k:l.k, lv:l.lv, from:l.s, to:l.e, e:'🎬'}))};
+}
+async function openClips(){
+  go('clips');
+  const box=document.getElementById('clipList');
+  box.innerHTML='<p class="emptynote">불러오는 중…</p>';
+  let list=null;
+  try{ list=await loadClips(); }catch(e){ list=undefined; }
+  if(!list){
+    box.innerHTML='<p class="emptynote">'+(list===null
+      ? '이 기기에서는 아직 클립이 잠겨 있어요.<br>가족 링크로 한 번 열면 풀립니다.'
+      : '클립을 열지 못했어요. 인터넷 연결을 확인하거나 가족 링크로 다시 열어 주세요.')+'</p>';
+    return;
+  }
+  box.innerHTML='';
+  list.forEach(c=>{
+    const rec=DB.books['clip_'+c.id];
+    const el=document.createElement('button');
+    el.className='ccard'; el.onclick=()=>openClip(c.id);
+    el.innerHTML='<img src="https://i.ytimg.com/vi/'+encodeURIComponent(c.id)+'/mqdefault.jpg" alt="" loading="lazy">'+
+      '<div><span>'+esc(c.show)+' · Lv.'+c.lv+'</span><b>'+esc(c.title)+'</b>'+
+      '<span'+(rec?' class="done"':'')+'>'+c.lines.length+'문장'+(rec? ' · '+'⭐'.repeat(rec.stars)+' · '+rec.best+'%' : '')+'</span></div>';
+    box.appendChild(el);
+  });
+}
+let YTP=null, ytReady=null;
+function ensureYT(){
+  if(ytReady) return ytReady;
+  ytReady=new Promise(res=>{
+    window.onYouTubeIframeAPIReady=res;
+    const sc=document.createElement('script'); sc.src='https://www.youtube.com/iframe_api'; document.head.appendChild(sc);
+  });
+  return ytReady;
+}
+async function openClip(vid){
+  const c=(await loadClips()).find(x=>x.id===vid); if(!c) return;
+  curBook=clipBook(c); curIdx=0; curScores=[];
+  go('read');
+  document.getElementById('scene').hidden=true; document.getElementById('ytBox').hidden=false;
+  await ensureYT();
+  if(!YTP){
+    await new Promise(res=>{
+      YTP=new YT.Player('ytPlayer', {width:'100%', height:'100%', videoId:vid,
+        playerVars:{playsinline:1, rel:0, cc_load_policy:0}, events:{onReady:res}});
+    });
+  }
+  renderPage();
+}
+function playSeg(){
+  if(!YTP || !YTP.loadVideoById) return;
+  const pg=curPage();
+  clearInterval(playSeg.t);
+  YTP.loadVideoById({videoId:curBook.video, startSeconds:pg.from});
+  setTimeout(()=>{ try{ YTP.setPlaybackRate(clipRate()); }catch(e){} }, 300);
+  playSeg.t=setInterval(()=>{                       // 문장 끝에서 멈춤 (끝 화면·추천 영상 안 뜨게)
+    try{ if(YTP.getCurrentTime()>=pg.to){ YTP.pauseVideo(); clearInterval(playSeg.t); } }catch(e){ clearInterval(playSeg.t); }
+  }, 100);
+}
+function pauseClip(){ clearInterval(playSeg.t); try{ if(YTP && YTP.pauseVideo) YTP.pauseVideo(); }catch(e){} }
 
 /* ============================================================
    시작
