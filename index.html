@@ -861,7 +861,10 @@ function startMic(){
   const btn=document.getElementById('micBtn'), heard=document.getElementById('heard'), ms=document.getElementById('micState');
   let finalText='', alts=[];
 
-  rec.onstart=()=>{ listening=true; btn.classList.add('rec'); ms.textContent='듣는 중… 다 읽으면 한 번 더 누르세요'; heard.textContent=''; };
+  rec.onstart=()=>{ listening=true; btn.classList.add('rec'); ms.textContent='듣는 중… 다 읽으면 한 번 더 누르세요'; heard.textContent='';
+    // 다시 말할 때: 지난번 색·점수 지우고 새로 시작
+    document.querySelectorAll('#sentence .w').forEach(w=>w.classList.remove('ok','no','speak'));
+    document.getElementById('result').classList.remove('on'); };
   rec.onresult=ev=>{
     let interim='';
     for(let i=ev.resultIndex;i<ev.results.length;i++){
