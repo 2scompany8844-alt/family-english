@@ -1053,7 +1053,11 @@ function startMic(){
   const btn=document.getElementById('micBtn'), heard=document.getElementById('heard'), ms=document.getElementById('micState');
   let finalText='', alts=[];
 
-  rec.onstart=()=>{ listening=true; btn.classList.add('rec'); ms.textContent='듣는 중… 다 읽으면 한 번 더 누르세요'; heard.textContent='';
+  let ready=false;
+  const goReady=()=>{ if(ready) return; ready=true; btn.classList.add('rec'); ms.textContent='🔴 지금 말하세요 · 다 읽으면 한 번 더 누르세요'; };
+  ms.textContent='마이크 준비 중… 빨간 불이 켜지면 말하세요'; heard.textContent='';
+  rec.onaudiostart=goReady;
+  rec.onstart=()=>{ listening=true; setTimeout(goReady, 1500); heard.textContent='';
     // 다시 말할 때: 지난번 색·점수 지우고 새로 시작
     document.querySelectorAll('#sentence .w').forEach(w=>w.classList.remove('ok','no','speak'));
     document.getElementById('result').classList.remove('on'); };
@@ -1105,9 +1109,20 @@ function similar(a,b,loose){
   if(L<=5) return d<=1;
   return d<=Math.floor(L*0.3);
 }
+const CONTR=[["i am","i'm"],["it is","it's"],["that is","that's"],["what is","what's"],["there is","there's"],["let us","let's"],["you are","you're"],["we are","we're"],["they are","they're"],["do not","don't"],["does not","doesn't"],["did not","didn't"],["can not","can't"],["cannot","can't"],["is not","isn't"],["are not","aren't"],["i will","i'll"],["you will","you'll"],["we will","we'll"],["i have","i've"],["i would","i'd"],["he is","he's"],["she is","she's"],["where is","where's"],["who is","who's"],["will not","won't"]];
+function alignContr(t, s){
+  // 인식기가 줄임말을 풀어 쓰거나(I am) 줄여 쓰면(I'm) 목표 문장 쪽에 맞춘다
+  for(const [full, short] of CONTR){
+    const F=new RegExp('\\b'+full+'\\b','g'), S=new RegExp('\\b'+short+'\\b','g');
+    const has=(re,x)=>{ re.lastIndex=0; return re.test(x); };
+    if(has(S,t) && !has(S,s)) s=s.replace(F, short);
+    else if(has(F,t) && !has(F,s)) s=s.replace(S, full);
+  }
+  return s;
+}
 function matchWords(target, said){
   const T=norm(target).split(' ').filter(Boolean);
-  const S=norm(said).split(' ').filter(Boolean);
+  const S=alignContr(norm(target), norm(said)).split(' ').filter(Boolean);
   const nameWord = KID? norm(KID.en) : '';
   const used=new Array(S.length).fill(false), flags=[];
   let cursor=0;
