@@ -1059,7 +1059,7 @@ function startMic(){
   rec.onaudiostart=goReady;
   rec.onstart=()=>{ listening=true; setTimeout(goReady, 1500); heard.textContent='';
     // 다시 말할 때: 지난번 색·점수 지우고 새로 시작
-    document.querySelectorAll('#sentence .w').forEach(w=>w.classList.remove('ok','no','speak'));
+    document.querySelectorAll('#sentence .w').forEach((w,i)=>{ w.classList.remove('ok','no','speak'); if(pagePassed[i]) w.classList.add('ok'); });
     document.getElementById('result').classList.remove('on'); };
   rec.onresult=ev=>{
     let interim='';
@@ -1072,7 +1072,7 @@ function startMic(){
     heard.innerHTML='<b>'+esc(soFar)+'</b>';
     // 말한 단어부터 색이 채워진다 (가라오케)
     const live=matchWords(fill(curPage().t), soFar).flags;
-    document.querySelectorAll('#sentence .w').forEach((s,i)=>s.classList.toggle('ok', !!live[i]));
+    document.querySelectorAll('#sentence .w').forEach((s,i)=>s.classList.toggle('ok', !!live[i] || !!pagePassed[i]));
   };
   rec.onerror=ev=>{
     listening=false; btn.classList.remove('rec'); ms.textContent='마이크를 눌러 다시 읽어 보세요';
@@ -1140,20 +1140,23 @@ function matchWords(target, said){
   return {flags, acc: T.length? Math.round(ok/T.length*100):0, words:T};
 }
 
-let pageScored=false;
+let pageScored=false, pagePassed=[];
 function grade(said){
   const r=matchWords(fill(curPage().t), said);
+  const prevAcc = pagePassed.length ? Math.round(pagePassed.filter(Boolean).length/pagePassed.length*100) : 0;
+  pagePassed = r.flags.map((f,i)=>f || !!pagePassed[i]);   // 이번에 맞힌 단어 + 앞에서 맞힌 단어
+  const acc = Math.round(pagePassed.filter(Boolean).length/(pagePassed.length||1)*100);
   const spans=[...document.querySelectorAll('#sentence .w')];
-  spans.forEach((s,i)=>{ s.classList.remove('ok','no','speak'); s.classList.add(r.flags[i]?'ok':'no'); });
+  spans.forEach((s,i)=>{ s.classList.remove('ok','no','speak'); s.classList.add(pagePassed[i]?'ok':'no'); });
 
   const box=document.getElementById('result');
   const circle=document.getElementById('scoreCircle');
-  box.classList.add('on'); circle.textContent=r.acc+'%';
+  box.classList.add('on'); circle.textContent=acc+'%';
 
   let msg,sub,color;
-  if(r.acc>=90){ msg='완벽해요! 🎉'; sub='원어민처럼 읽었어요.'; color='var(--acc-ink)'; }
-  else if(r.acc>=70){ msg='아주 좋아요! 👍'; sub='빨간 단어만 한 번 더 읽어볼까요?'; color='var(--ink)'; }
-  else{ msg='한 번 더 해볼까요? 💪'; sub='🔊 들어보기를 누르고 따라 해보세요.'; color='var(--miss)'; }
+  if(acc>=90){ msg = prevAcc && prevAcc<90 ? '빨간 단어까지 다 읽었어요! 🎉' : '완벽해요! 🎉'; sub='원어민처럼 읽었어요.'; color='var(--acc-ink)'; }
+  else if(acc>=70){ msg='아주 좋아요! 👍'; sub='빨간 단어만 다시 읽으면 돼요. 초록 단어는 그대로 남아요.'; color='var(--ink)'; }
+  else{ msg='한 번 더 해볼까요? 💪'; sub='🔊 들어보고 빨간 단어만 다시 읽어도 돼요.'; color='var(--miss)'; }
   circle.style.color=color;
   document.getElementById('resultTxt').innerHTML=msg+'<small>'+sub+'</small>';
 
@@ -1191,7 +1194,7 @@ async function openBook(id){
 function exitBook(){ releaseScenes(); stopAudio(); if(curBook && curBook.onExit){ curBook.onExit(); return; } if(curBook && curBook.diag){ go('home'); drawHome(); return; } if(curBook && curBook.clip){ openClips(); } else { go('home'); drawHome(); } }
 
 function renderPage(){
-  pageScored=false;
+  pageScored=false; pagePassed=[];
   const p=curPage();
   renderScene();
 
