@@ -7,6 +7,9 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <title>가족 영어</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
@@ -356,6 +359,8 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
   <div class="pgrid" id="pgrid"></div>
   <input type="file" id="photoInput" accept="image/*" style="display:none">
   <input type="file" id="pageInput" accept="image/*" capture="environment" style="display:none">
+  <button class="btn-wide btn-acc" id="installBtn" onclick="installApp()" hidden style="margin-top:20px">📲 앱으로 설치하기</button>
+  <p class="pnote" id="installTip" hidden>크롬 오른쪽 위 ⋮ → <b>앱 설치</b>(또는 홈 화면에 추가)를 누르면 앱처럼 쓸 수 있어요.</p>
   <p class="pnote">📷 사진 넣기 · ✎ 이름 고치기<br>이름과 사진은 이 기기에만 저장되고 인터넷으로 전송되지 않습니다.</p>
 </section>
 
@@ -2132,6 +2137,22 @@ function talkListen(){
 }
 function endChat(){ setPhone(false); if(talkRec){ try{talkRec.stop();}catch(e){} } speechSynthesis.cancel(); openTalk(); }
 document.addEventListener('keydown', e=>{ if(e.key==='Enter' && document.activeElement && document.activeElement.id==='chatInput'){ e.preventDefault(); sendChat(e.target.value); } });
+
+/* ============================================================
+   17. 앱으로 설치 (PWA) — 설치하면 주소창 없이 홈 화면 아이콘으로 바로 열림
+   ============================================================ */
+let installEvt=null;
+const isStandalone=()=>window.matchMedia('(display-mode: standalone)').matches || navigator.standalone===true;
+window.addEventListener('beforeinstallprompt', e=>{ e.preventDefault(); installEvt=e; document.getElementById('installBtn').hidden=false; document.getElementById('installTip').hidden=true; });
+window.addEventListener('appinstalled', ()=>{ installEvt=null; document.getElementById('installBtn').hidden=true; });
+async function installApp(){
+  if(!installEvt) return;
+  installEvt.prompt();
+  try{ await installEvt.userChoice; }catch(e){}
+  installEvt=null; document.getElementById('installBtn').hidden=true;
+}
+// 설치 안 된 채 브라우저로 열었는데 설치 창 신호가 안 오면 메뉴 안내
+setTimeout(()=>{ if(!isStandalone() && !installEvt) document.getElementById('installTip').hidden=false; }, 2500);
 
 /* ============================================================
    14. 유튜브 클립 — 대사는 clips.bin(암호화)에서 읽는다.
