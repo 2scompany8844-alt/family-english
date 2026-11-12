@@ -1047,7 +1047,7 @@ function toggleMic(){
   startMic();
 }
 function startMic(){
-  speechSynthesis.cancel(); pauseClip(); stopAudio(); if(!curPage().hideAll) revealKey();
+  speechSynthesis.cancel(); pauseClip(); stopAudio();
   rec=new SR();
   rec.lang='en-US'; rec.interimResults=true; rec.maxAlternatives=3; rec.continuous=false;
   const btn=document.getElementById('micBtn'), heard=document.getElementById('heard'), ms=document.getElementById('micState');
@@ -1143,7 +1143,8 @@ function grade(said){
   document.getElementById('resultTxt').innerHTML=msg+'<small>'+sub+'</small>';
 
   if(curBook.diag) diagScores[curIdx]=Math.max(diagScores[curIdx]||0, r.acc);
-  if(curPage().hideAll){ if(!hinted && r.acc>=80 && curPage().key) courseOk(curPage().key); revealKey(); }
+  if(curPage().hideAll && !hinted && r.acc>=80 && curPage().key) courseOk(curPage().key);
+  revealKey();  // 정답은 말한 뒤(채점 후)에만 보여 줌
   if(curBook.clip || curBook.tries){ tries[triesKey()]=(tries[triesKey()]||0)+1; drawTries();
     document.getElementById('micState').textContent = (tries[triesKey()]>=TRIES) ? '3번 다 했어요! 다음 문장으로 가 볼까요?' : (TRIES-tries[triesKey()])+'번 더 따라 해 보세요'; }
   if(!pageScored){
