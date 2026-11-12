@@ -2069,7 +2069,7 @@ function setupKey(p){
   document.getElementById('sayNow').textContent = revealed ? '이제 말해 보세요' : (p.hideAll ? '영어로 말해 보세요' : '빈칸에 뭐라고 했을까요?');
   const xc=document.getElementById('xCard');
   xc.hidden=true;
-  xc.innerHTML = p.x ? '<b>'+esc(p.x)+'</b><span>'+esc(p.xk||'')+'</span>'+(p.snd?'<span class="snd">소리 · '+esc(p.snd)+'</span>':'') : '';
+  xc.innerHTML = p.x ? '<b>'+esc(p.x)+'</b><span>'+esc(p.xk||'')+'</span>' : '';
   if(p.vars && p.vars.length){
     xc.innerHTML += '<div class="vars"><small>이렇게도 바꿔 말해요</small>'+p.vars.map((v,i)=>'<button class="vrow" data-vi="'+i+'"><em>'+esc(v.how)+'</em><span>'+esc(v.t)+'<i>'+esc(v.k)+'</i></span></button>').join('')+'</div>';
     xc.querySelectorAll('.vrow').forEach(b=>b.onclick=()=>playUrls([p.vars[+b.dataset.vi].audio]));
