@@ -1878,6 +1878,7 @@ async function openClip(vid){
       YTP=new YT.Player('ytPlayer', {width:'100%', height:'100%', videoId:vid,
         playerVars:{playsinline:1, rel:0, cc_load_policy:0}, events:{onReady:res}});
     });
+    playSeg.vid=vid;   // 처음 만들 때 이미 이 영상을 불러옴
   }
   renderPage();
 }
@@ -1885,7 +1886,9 @@ function playSeg(){
   if(!YTP || !YTP.loadVideoById) return;
   const pg=curPage();
   clearInterval(playSeg.t);
-  YTP.loadVideoById({videoId:curBook.video, startSeconds:pg.from});
+  // 같은 영상이면 건너뛰기만 한다 (다시 불러오면 유튜브가 광고를 또 붙임)
+  if(playSeg.vid===curBook.video){ YTP.seekTo(pg.from, true); YTP.playVideo(); }
+  else { playSeg.vid=curBook.video; YTP.loadVideoById({videoId:curBook.video, startSeconds:pg.from}); }
   setTimeout(()=>{ try{ YTP.setPlaybackRate(clipRate()); }catch(e){} }, 300);
   playSeg.t=setInterval(()=>{                       // 문장 끝에서 멈춤 (끝 화면·추천 영상 안 뜨게)
     try{ if(YTP.getCurrentTime()>=pg.to){ YTP.pauseVideo(); clearInterval(playSeg.t); } }catch(e){ clearInterval(playSeg.t); }
