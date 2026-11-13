@@ -606,7 +606,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
   </div>
   <div class="micstate" id="micState">마이크를 누르고 따라 읽어 보세요</div>
   <div class="tries" id="tries" hidden></div>
-  <button class="quietbtn" id="quietBtn" onclick="toggleQuiet()" hidden>🔇 지금 말하기 어려워요</button>
+  <button class="quietbtn" id="quietBtn" onclick="toggleQuiet()" hidden>🤫 소리 내기 어려운 곳이에요</button>
 
   <div class="result" id="result">
     <div class="score" id="scoreCircle">0%</div>
@@ -1266,6 +1266,7 @@ function renderPage(){
   const segs=document.getElementById('segs'), n=curBook.pages.length;
   segs.style.gap = n>12 ? '3px' : '6px';
   segs.innerHTML = curBook.pages.map((_,i)=>'<i class="'+(i<curIdx?'done':(i===curIdx?'now':''))+'"></i>').join('');
+  drawQuiet();
   if(!curBook.noAuto) setTimeout(()=>speak(), 400);
 }
 function renderKo(){
@@ -2124,7 +2125,7 @@ function setupKey(p){
     xc.querySelectorAll('.vrow').forEach(b=>b.onclick=()=>playUrls([p.vars[+b.dataset.vi].audio]));
   }
   if(p.links && p.links.length) xc.innerHTML += '<div class="link">🔗 '+p.links.map(l=>'Day '+l.day+' · '+esc(l.t)).join(' / ')+'</div>';
-  drawTries(); drawQuiet();
+  drawTries();
 }
 /* 힌트 1단계: 빈칸 단어의 첫 글자 + 글자 수만큼 밑줄, 뜻 → 그다음에야 정답 보기 */
 let hintStage=0;
@@ -2147,20 +2148,28 @@ function revealKey(byHint){
   const spans=[...document.querySelectorAll('#sentence .w')];
   keyIdx.forEach(i=>{ spans[i].textContent=spans[i].dataset.raw; spans[i].classList.remove('blank','hintw'); spans[i].classList.add('key'); });
   document.getElementById('revealBtn').hidden=true;
-  document.getElementById('sayNow').textContent='이제 말해 보세요';
+  document.getElementById('sayNow').textContent = quietOn() ? '🤫 맞혔나요? 다음 문장으로 넘어가요' : '이제 말해 보세요';
   document.getElementById('xCard').hidden = !curPage().x;
 }
 function triesKey(){ return curBook.id+'#'+curIdx; }
-let quietUntil=0;
-function quietOn(){ return Date.now()<quietUntil; }
-function toggleQuiet(){ quietUntil = quietOn() ? 0 : Date.now()+15*60*1000; if(!quietOn()) renderPage(); else drawQuiet(); }
+/* 조용히 모드: 소리 낼 수 없는 곳에서는 건너뛰지 않고 '속으로 말하고 정답 확인'으로 바꿔 연습 (껐다 켤 때까지 유지) */
+let quiet=false;
+function quietOn(){ return quiet; }
+function toggleQuiet(){ quiet=!quiet; renderPage(); }
 function drawQuiet(){
-  const b=document.getElementById('quietBtn'), mic=document.getElementById('micBtn'), q=quietOn();
+  const b=document.getElementById('quietBtn'), mic=document.getElementById('micBtn'), q=quiet;
   b.hidden = !(curBook && (curBook.clip || curBook.course));
-  b.textContent = q ? '🎤 다시 말하기 켜기' : '🔇 지금 말하기 어려워요';
+  b.textContent = q ? '🎤 소리 내서 연습하기로 돌아가기' : '🤫 소리 내기 어려운 곳이에요';
   mic.classList.toggle('off', q);
-  if(q){ stopMic(); revealKey(true); document.getElementById('sayNow').textContent='🔇 듣기만 해요'; document.getElementById('result').classList.remove('on'); document.getElementById('micState').textContent='15분 동안 듣기만 해요 · 들어 보고 다음으로 넘어가세요';
-    const nb=document.getElementById('nextBtn'); nb.className='navbtn go'; }
+  if(!q) return;
+  stopMic();
+  const spans=[...document.querySelectorAll('#sentence .w')];
+  if(!keyIdx.length){ keyIdx=spans.map((_,i)=>i); spans.forEach(w=>w.classList.add('blank')); }   // 빈칸 없는 문장은 통째로 가림
+  revealed=false; hintStage=1;
+  document.getElementById('sayNow').textContent='🤫 속으로 말해 보고 정답을 확인해요';
+  document.getElementById('revealBtn').textContent='정답 확인'; document.getElementById('revealBtn').hidden=false;
+  document.getElementById('micState').textContent='조용히 모드 · 🔊 들어 보고 속으로 따라 해요';
+  document.getElementById('nextBtn').className='navbtn go';
 }
 function drawTries(){
   const el=document.getElementById('tries');
