@@ -204,6 +204,8 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 var(--acc-soft)}50%{box-shadow:0 0 0 12px var(--acc-soft)}}
 .speed{height:36px; padding:0 14px; border-radius:999px; background:var(--surface); font-weight:700; font-size:14px; color:var(--ink-2); font-variant-numeric:tabular-nums}
 .micstate{text-align:center; font-size:13px; color:var(--ink-3); margin-top:10px; min-height:20px}
+.quietbtn{display:block; margin:6px auto 0; font-size:12px; color:var(--ink-3); background:transparent; padding:6px 10px}
+.btn-mic.off{opacity:.35}
 .navrow{display:flex; justify-content:center; gap:8px; margin-top:12px}
 .navbtn{font-size:15px; font-weight:600; color:var(--ink-2); padding:10px 16px; border-radius:999px}
 .navbtn.next{color:var(--ink)}
@@ -604,6 +606,7 @@ button:focus-visible{outline:3px solid var(--acc); outline-offset:2px}
   </div>
   <div class="micstate" id="micState">마이크를 누르고 따라 읽어 보세요</div>
   <div class="tries" id="tries" hidden></div>
+  <button class="quietbtn" id="quietBtn" onclick="toggleQuiet()" hidden>🔇 지금 말하기 어려워요</button>
 
   <div class="result" id="result">
     <div class="score" id="scoreCircle">0%</div>
@@ -1048,14 +1051,24 @@ function toggleMic(){
   startMic();
 }
 function startMic(){
+  if(quietOn()) return;
   speechSynthesis.cancel(); pauseClip(); stopAudio();
+  // 따라 하기 마지막 회차: 문장을 가리고 기억해서 말하기 (맞힌 단어 누적도 새로 시작)
+  if((curBook.clip || curBook.tries) && !curPage().hideAll && (tries[triesKey()]||0)===TRIES-1 && !recallMode){
+    recallMode=true; pagePassed=[];
+    const spans=[...document.querySelectorAll('#sentence .w')];
+    keyIdx=spans.map((_,i)=>i); revealed=false; hintStage=0;
+    spans.forEach(w=>{ w.textContent=w.dataset.raw; w.classList.remove('ok','no','speak','key','hintw'); w.classList.add('blank'); });
+    document.getElementById('sayNow').textContent='마지막 한 번은 안 보고 말해 보세요';
+    document.getElementById('revealBtn').textContent='💡 힌트 보기'; document.getElementById('revealBtn').hidden=false;
+  }
   rec=new SR();
   rec.lang='en-US'; rec.interimResults=true; rec.maxAlternatives=3; rec.continuous=false;
   const btn=document.getElementById('micBtn'), heard=document.getElementById('heard'), ms=document.getElementById('micState');
   let finalText='', alts=[];
 
   let ready=false;
-  const goReady=()=>{ if(ready) return; ready=true; btn.classList.add('rec'); ms.textContent='🔴 지금 말하세요 · 다 읽으면 한 번 더 누르세요'; };
+  const goReady=()=>{ if(ready) return; ready=true; tone(SND.ready); btn.classList.add('rec'); ms.textContent='🔴 지금 말하세요 · 다 읽으면 한 번 더 누르세요'; };
   ms.textContent='마이크 준비 중… 빨간 불이 켜지면 말하세요'; heard.textContent='';
   rec.onaudiostart=goReady;
   rec.onstart=()=>{ listening=true; setTimeout(goReady, 1500); heard.textContent='';
@@ -1105,11 +1118,22 @@ async function judgeSimilar(said, acc){
     if(curBook!==book || curIdx!==idx) return;
     if(String(r.reply).trim().toUpperCase()==='SAME'){
       document.querySelectorAll('#sentence .w.no').forEach(w=>w.classList.remove('no'));  // 뜻이 통하면 빨간 표시는 지움
-      const c=document.getElementById('scoreCircle'); c.textContent='✓'; c.style.color='var(--acc-ink)';
+      tone(SND.great); const c=document.getElementById('scoreCircle'); c.textContent='✓'; c.style.color='var(--acc-ink)';
       box.innerHTML='뜻이 통해요! 👍<small>'+esc(r.ko||'이렇게 말해도 자연스러워요.')+'</small><small>이번에 익힐 표현: <b>'+esc(p.x||target)+'</b> — 한 번 더 말해 보세요</small>';
     } else note.textContent='🤖 '+(r.ko||'뜻이 조금 달라요.');
   }catch(e){ if(curBook===book && curIdx===idx) note.remove(); }
 }
+let actx=null;
+function tone(notes){
+  try{
+    actx = actx || new (window.AudioContext||window.webkitAudioContext)();
+    let t=actx.currentTime;
+    notes.forEach(([f,d])=>{ const o=actx.createOscillator(), g=actx.createGain();
+      o.type='sine'; o.frequency.value=f; g.gain.setValueAtTime(0.0001,t); g.gain.exponentialRampToValueAtTime(0.18,t+0.02); g.gain.exponentialRampToValueAtTime(0.0001,t+d);
+      o.connect(g); g.connect(actx.destination); o.start(t); o.stop(t+d+0.02); t+=d*0.8; });
+  }catch(e){}
+}
+const SND={ready:[[880,.09]], great:[[784,.12],[1047,.22]], good:[[659,.18]], again:[[392,.2]]};
 function stopMic(){ if(rec){ try{rec.stop();}catch(e){} } }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
 
@@ -1180,7 +1204,7 @@ function grade(said){
   if(acc>=90){ msg = prevAcc && prevAcc<90 ? '빨간 단어까지 다 읽었어요! 🎉' : '완벽해요! 🎉'; sub='원어민처럼 읽었어요.'; color='var(--acc-ink)'; }
   else if(acc>=70){ msg='아주 좋아요! 👍'; sub='빨간 단어만 다시 읽으면 돼요. 초록 단어는 그대로 남아요.'; color='var(--ink)'; }
   else{ msg='한 번 더 해볼까요? 💪'; sub='🔊 들어보고 빨간 단어만 다시 읽어도 돼요.'; color='var(--miss)'; }
-  circle.style.color=color;
+  circle.style.color=color; tone(acc>=90?SND.great: acc>=70?SND.good: SND.again);
   document.getElementById('resultTxt').innerHTML=msg+'<small>'+sub+'</small>';
 
   if(curBook.diag) diagScores[curIdx]=Math.max(diagScores[curIdx]||0, r.acc);
@@ -2076,7 +2100,7 @@ function resetOne(){
 
 /* ---------- 쇼츠식 루틴: 빈칸 → 정답 → 표현 카드 → 3번 따라 하기 ---------- */
 const TRIES=3;
-let keyIdx=[], revealed=true, tries={}, hinted=false;
+let keyIdx=[], revealed=true, tries={}, hinted=false, recallMode=false;
 function wnorm(w){ return String(w).toLowerCase().replace(/[^a-z0-9']/g,''); }
 function findKey(words, x){
   const xs=String(x||'').split(/\s+/).map(wnorm).filter(Boolean), ws=words.map(wnorm);
@@ -2086,7 +2110,7 @@ function findKey(words, x){
 function setupKey(p){
   const spans=[...document.querySelectorAll('#sentence .w')];
   keyIdx = p.hideAll ? spans.map((_,i)=>i) : ((curBook.clip || curBook.course) && p.x) ? findKey(spans.map(s=>s.dataset.raw), p.x) : [];
-  revealed = !keyIdx.length; hinted=false; hintStage=0;
+  revealed = !keyIdx.length; hinted=false; hintStage=0; recallMode=false;
   document.getElementById('revealBtn').textContent='💡 힌트 보기';
   const cx=document.getElementById('ctxLine'); cx.hidden=!p.ctx; cx.textContent = p.ctx ? (p.ctxIcon||'🧒')+' '+p.ctx : '';
   keyIdx.forEach(i=>spans[i].classList.add('blank'));
@@ -2100,7 +2124,7 @@ function setupKey(p){
     xc.querySelectorAll('.vrow').forEach(b=>b.onclick=()=>playUrls([p.vars[+b.dataset.vi].audio]));
   }
   if(p.links && p.links.length) xc.innerHTML += '<div class="link">🔗 '+p.links.map(l=>'Day '+l.day+' · '+esc(l.t)).join(' / ')+'</div>';
-  drawTries();
+  drawTries(); drawQuiet();
 }
 /* 힌트 1단계: 빈칸 단어의 첫 글자 + 글자 수만큼 밑줄, 뜻 → 그다음에야 정답 보기 */
 let hintStage=0;
@@ -2127,6 +2151,17 @@ function revealKey(byHint){
   document.getElementById('xCard').hidden = !curPage().x;
 }
 function triesKey(){ return curBook.id+'#'+curIdx; }
+let quietUntil=0;
+function quietOn(){ return Date.now()<quietUntil; }
+function toggleQuiet(){ quietUntil = quietOn() ? 0 : Date.now()+15*60*1000; if(!quietOn()) renderPage(); else drawQuiet(); }
+function drawQuiet(){
+  const b=document.getElementById('quietBtn'), mic=document.getElementById('micBtn'), q=quietOn();
+  b.hidden = !(curBook && (curBook.clip || curBook.course));
+  b.textContent = q ? '🎤 다시 말하기 켜기' : '🔇 지금 말하기 어려워요';
+  mic.classList.toggle('off', q);
+  if(q){ stopMic(); revealKey(true); document.getElementById('sayNow').textContent='🔇 듣기만 해요'; document.getElementById('result').classList.remove('on'); document.getElementById('micState').textContent='15분 동안 듣기만 해요 · 들어 보고 다음으로 넘어가세요';
+    const nb=document.getElementById('nextBtn'); nb.className='navbtn go'; }
+}
 function drawTries(){
   const el=document.getElementById('tries');
   el.hidden = !(curBook.clip || curBook.tries);
