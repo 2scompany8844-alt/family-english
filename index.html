@@ -1084,9 +1084,31 @@ function startMic(){
   rec.onend=()=>{
     listening=false; btn.classList.remove('rec'); ms.textContent='마이크를 눌러 다시 읽어 보세요';
     const said=(alts.length? bestAlt(alts, fill(curPage().t)) : finalText).trim();
-    if(said) grade(said);
+    if(said){ const acc=grade(said); judgeSimilar(said, acc); }
   };
   try{ rec.start(); }catch(e){ heard.textContent='마이크를 시작할 수 없어요.'; }
+}
+/* 뜻이 같은 다른 표현으로 말했을 때: 점수가 낮으면 AI가 같은 뜻·자연스러운 문장인지 판단 */
+async function judgeSimilar(said, acc){
+  if(!(curBook.clip || curBook.course) || acc>=90 || norm(said).split(' ').length<2 || !getKey() || !window.aiChat) return;
+  const book=curBook, idx=curIdx, p=curPage(), target=fill(p.t);
+  const box=document.getElementById('resultTxt'), note=document.createElement('small');
+  note.textContent='🤖 비슷한 뜻의 표현인지 확인 중…'; box.appendChild(note);
+  try{
+    const r=await window.aiChat(getKey(),
+      'You check a Korean learner\'s spoken English (speech-recognition text, so ignore punctuation and capitalization).\n'+
+      'Target sentence: "'+target+'"'+(p.k?' (Korean meaning: '+p.k+')':'')+'.\n'+
+      'Decide if the learner\'s sentence says the same thing in the same situation and is natural, correct English, even with different words.\n'+
+      'Fill: reply = "SAME" or "DIFF"; ko = one short, warm Korean sentence for the learner (if SAME, say it works too; if DIFF, say what meaning or word is off); '+
+      'fix = the learner\'s sentence corrected only if it has a grammar mistake, else unchanged; why = ""; hint = ""; used = [].',
+      [{role:'user', content:said}]);
+    if(curBook!==book || curIdx!==idx) return;
+    if(String(r.reply).trim().toUpperCase()==='SAME'){
+      document.querySelectorAll('#sentence .w.no').forEach(w=>w.classList.remove('no'));  // 뜻이 통하면 빨간 표시는 지움
+      const c=document.getElementById('scoreCircle'); c.textContent='✓'; c.style.color='var(--acc-ink)';
+      box.innerHTML='뜻이 통해요! 👍<small>'+esc(r.ko||'이렇게 말해도 자연스러워요.')+'</small><small>이번에 익힐 표현: <b>'+esc(p.x||target)+'</b> — 한 번 더 말해 보세요</small>';
+    } else note.textContent='🤖 '+(r.ko||'뜻이 조금 달라요.');
+  }catch(e){ if(curBook===book && curIdx===idx) note.remove(); }
 }
 function stopMic(){ if(rec){ try{rec.stop();}catch(e){} } }
 function esc(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
@@ -1174,6 +1196,7 @@ function grade(said){
   }
   const nb=document.getElementById('nextBtn');
   nb.className='navbtn go'; nb.textContent = curIdx>=curBook.pages.length-1 ? '퀴즈로 →' : '다음 문장으로 →';
+  return acc;
 }
 
 /* ============================================================
